@@ -222,11 +222,16 @@ replaced_modules = {
 }
 depricated_modules = ["CorrectIllumination_Calculate_kate", "SubtractBackground"]
 unimplemented_modules = ["LabelImages", "Restart", "SplitOrSpliceMovie"]
+renamed_modules = {
+    "Erosion": "ErodeImage",
+}
 
 
 def get_module_class(module_name):
     module_class = module_name.split(".")[-1]
     if module_class not in all_modules:
+        if module_class in renamed_modules:
+            return all_modules[renamed_modules[module_class]]
         if module_class in unimplemented_modules:
             raise ValueError(
                 (
