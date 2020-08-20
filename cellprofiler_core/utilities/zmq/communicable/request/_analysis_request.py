@@ -14,4 +14,4 @@ class AnalysisRequest(Request):
         self.analysis_id = analysis_id
 
     def __lt__(self, other):
-        return False
+        return True
