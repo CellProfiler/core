@@ -81,6 +81,8 @@ class Workspace:
         """Object into which the module's run() method can stuff items
         that must be available later for display()."""
 
+        self.motions = {}
+
     def refresh(self):
         """Refresh any windows created during use"""
         for window in self.__windows_used:
