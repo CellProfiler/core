@@ -1,5 +1,6 @@
 from ._grid_subscriber import GridSubscriber
 from ._label_subscriber import LabelSubscriber
+from ._motion_subscriber import MotionSubscriber
 from ._subscriber import Subscriber
 from .image_subscriber import CropImageSubscriber
 from .image_subscriber import FileImageSubscriber

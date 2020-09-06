@@ -8,6 +8,7 @@ from .alphanumeric import FileImageName
 from .alphanumeric import GridName
 from .alphanumeric import ImageName
 from .alphanumeric import LabelName
+from .alphanumeric import MotionName
 from .alphanumeric import Name
 from .alphanumeric import OutlineImageName
 from .number import Float

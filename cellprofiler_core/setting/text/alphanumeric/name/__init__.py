@@ -1,5 +1,6 @@
 from ._grid_name import GridName
 from ._label_name import LabelName
+from ._motion_name import MotionName
 from ._name import Name
 from .image_name import CropImageName
 from .image_name import ExternalImageName
