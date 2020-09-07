@@ -3,14 +3,35 @@ import os
 import tempfile
 
 import h5py
+import numpy
+import pytest
 
 import cellprofiler_core.measurement
 import cellprofiler_core.pipeline
 import cellprofiler_core.utilities.core.workspace
+import cellprofiler_core.utilities.hdf5_dict
 import cellprofiler_core.workspace
-from cellprofiler_core.utilities.hdf5_dict import FILE_LIST_GROUP, TOP_LEVEL_GROUP_NAME
+import cellprofiler_core.motion
+import cellprofiler_core.setting.text
 
-logger = logging.getLogger(__name__)
+
+@pytest.fixture
+def motion() -> cellprofiler_core.motion.Motion:
+    u = numpy.array([])
+    v = numpy.array([])
+
+    return cellprofiler_core.motion.Motion(u, v)
+
+
+@pytest.fixture
+def workspace() -> cellprofiler_core.workspace.Workspace:
+    pipeline = cellprofiler_core.pipeline.Pipeline()
+
+    measurements = cellprofiler_core.measurement.Measurements()
+
+    return cellprofiler_core.workspace.Workspace(
+        pipeline, None, measurements, None, measurements, None
+    )
 
 
 class TestWorkspace:
@@ -22,7 +43,7 @@ class TestWorkspace:
             try:
                 os.remove(path)
             except OSError:
-                logger.warning("Failed to close file %s" % path, exc_info=1)
+                logging.warning("Failed to close file %s" % path, exc_info=1)
 
     def make_workspace_file(self):
         """Make a very basic workspace file"""
@@ -50,7 +71,10 @@ class TestWorkspace:
         assert not cellprofiler_core.utilities.core.workspace.is_workspace_file(
             __file__
         )
-        for group in TOP_LEVEL_GROUP_NAME, FILE_LIST_GROUP:
+        for group in (
+            cellprofiler_core.utilities.hdf5_dict.TOP_LEVEL_GROUP_NAME,
+            cellprofiler_core.utilities.hdf5_dict.FILE_LIST_GROUP,
+        ):
             path = self.make_workspace_file()
             h5file = h5py.File(path, "r+")
             del h5file[group]
@@ -66,3 +90,8 @@ class TestWorkspace:
         os.remove(path)
         self.workspace_files.remove(path)
         assert not os.path.isfile(path)
+
+    def test_motions(self, workspace, motion):
+        workspace.motions["foo"] = motion
+
+        assert workspace.motions == {"foo": motion}
