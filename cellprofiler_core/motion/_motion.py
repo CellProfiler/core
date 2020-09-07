@@ -31,7 +31,7 @@ class Motion:
 
         return rho, phi
 
-    def plot(self) -> matplotlib.quiver.Quiver:
+    def quiver(self) -> matplotlib.quiver.Quiver:
         u = self.u[:: self.step, :: self.step]
         v = self.v[:: self.step, :: self.step]
 
