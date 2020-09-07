@@ -4,18 +4,18 @@ import numpy
 
 
 class Motion:
-    step: int
-
     u: numpy.array
     v: numpy.array
 
-    def __init__(self, u: numpy.array, v: numpy.array, step: int = 8):
-        self.step = step
+    step: int
 
+    def __init__(self, u: numpy.array, v: numpy.array, step: int = 8):
         assert u.shape == v.shape
 
         self.u = u
         self.v = v
+
+        self.step = step
 
     @property
     def coordinates(self) -> [numpy.array, numpy.array]:
