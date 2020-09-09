@@ -223,6 +223,7 @@ def config_write(key, value):
         get_config().WriteFloat(key, float(value))
     else:
         get_config().Write(key, value)
+    get_config().Flush()
 
 
 def config_exists(key):
