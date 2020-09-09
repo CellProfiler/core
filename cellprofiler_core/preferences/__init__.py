@@ -1034,6 +1034,7 @@ def get_skip_version():
 
 def set_skip_version(ver):
     get_config().Write(SKIPVERSION, str(ver))
+    get_config().Flush()
 
 
 __show_sampling = None
@@ -1053,6 +1054,7 @@ def set_show_sampling(value):
     global __show_sampling
     get_config().WriteBool(SHOW_SAMPLING, bool(value))
     __show_sampling = bool(value)
+    get_config().Flush()
 
 
 __recent_files: dict = {}
@@ -1195,6 +1197,7 @@ def get_telemetry():
 
 def set_telemetry(val):
     get_config().WriteBool(TELEMETRY, val)
+    get_config().Flush()
 
 
 def get_telemetry_prompt():
@@ -1206,6 +1209,7 @@ def get_telemetry_prompt():
 
 def set_telemetry_prompt(val):
     get_config().WriteBool(TELEMETRY_PROMPT, val)
+    get_config().Flush()
 
 
 def get_startup_blurb():
@@ -1216,6 +1220,7 @@ def get_startup_blurb():
 
 def set_startup_blurb(val):
     get_config().WriteBool(STARTUPBLURB, val)
+    get_config().Flush()
 
 
 def get_primary_outline_color():
@@ -1477,6 +1482,7 @@ def set_max_workers(value):
     global __max_workers
     get_config().WriteInt(MAX_WORKERS, value)
     __max_workers = value
+    get_config().Flush()
 
 
 __temp_dir = None
