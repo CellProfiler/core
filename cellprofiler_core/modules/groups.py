@@ -618,7 +618,7 @@ desired behavior.
                 return False
 
         if len(workspace.measurements.get_image_numbers()) == 0:
-            # Refresh image set to make sure it's actually empty, if we have evidence there was data
+            # Refresh image set to make sure it's actually empty, if and only if there was a settings change
             if changed_setting:
                 workspace.refresh_image_set()
                 if len(workspace.measurements.get_image_numbers()) == 0:
