@@ -167,6 +167,19 @@ class Images(Module):
     MI_REMOVE = FileCollectionDisplay.DeleteMenuItem("Remove from list")
     MI_REFRESH = "Refresh"
 
+    def from_dict(self, attributes_dict: dict, settings_dict: dict):
+        for attribute in attributes_dict.keys():
+            self.attribute = attributes_dict[attribute]
+        # TODO: Find out how to apply settings to module?
+        # for setting in settings_dict:
+        #     if isinstance(setting, PathListDisplay):
+        #         self.path_list_display = setting
+        #     elif isinstance(setting, Choice):
+        #         self.filter_choice = setting
+        #     elif isinstance(setting, Filter):
+        #         self.filter = setting
+
+
     def create_settings(self):
         self.workspace = None
         module_explanation = [

@@ -3,6 +3,7 @@ import datetime
 import hashlib
 import importlib
 import io
+import json
 import logging
 import os
 import os.path
@@ -81,7 +82,7 @@ from ..measurement import Measurements
 from ..object import ObjectSet
 from ..preferences import get_headless
 from ..preferences import report_progress
-from ..setting import Measurement
+from ..setting import Measurement, Setting
 from ..setting.subscriber import ImageSubscriber
 from ..setting.text import Name
 from ..utilities.measurement import load_measurements
@@ -613,37 +614,32 @@ class Pipeline:
         dumpit(self, fp, save_image_plane_details, sanitize=sanitize)
 
 
-    def pipeline_to_json(self):
+    def write_to_json(self, fp):
         """Serializes pipeline into JSON"""
-        import json
-        from pathlib import Path
         pipeline_dict = {}
         for module in self.modules(False):
-            module_settings = []
+            settings = []
             for setting in module.settings():
-                module_settings.append(setting.to_dict())
-            attributes_dict = self.attributes_to_dict(module)
+                settings.append(setting.to_dict())
             pipeline_dict[module.module_name] = {
-                "attributes": attributes_dict,
-                "settings": module_settings
+                "attributes": module.to_dict(),
+                "settings": settings
             }
-        with open(os.path.join(Path.home(), "Desktop/test.json"), 'w') as outfile:
-            json.dump(pipeline_dict, outfile, indent=4)
+        # with open(file_path, 'w') as outfile:
+        #     json.dump(pipeline_dict, outfile, indent=4)
+        json.dump(pipeline_dict, fp, indent=4)
 
-        #Here, try to read it
-
-        from cellprofiler_core.setting._setting import Setting
-        with open(os.path.join(Path.home(), "Desktop/test.json")) as json_pipeline:
-            data = json.load(json_pipeline)
-            for module in data.keys():
-                settings = []
-                for setting_dict in data[module]["settings"]:
-                    setting = Setting.from_dict(setting_dict)
-                    settings.append(setting)
-
-
-        print("Done opening JSON file")
-
+    # TODO: Implement this
+    def load_from_json(self, fd):
+        # fd.seek(0)
+        # json_pipeline = fd.getvalue()
+        data = json.load(fd)
+        # for module in data.keys():
+        #     settings = []
+        #     for setting_dict in data[module]["settings"]:
+        #         setting = Setting.from_dict(setting_dict)
+        #         settings.append(setting)
+        #         #TODO: where do we go from there? What is the optimal way to create the pipeline?
 
 
     def attributes_to_dict(self, module):

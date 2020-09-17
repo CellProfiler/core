@@ -9,6 +9,7 @@ import sys
 import tempfile
 import traceback
 import unittest
+from pathlib import Path
 
 import numpy
 import numpy.lib.index_tricks
@@ -554,6 +555,24 @@ HasImagePlaneDetails:False"""
                 print(("%s needs to define module_name as a class variable" % k))
                 success = False
         assert success
+
+    def test_pipeline_to_json(self):
+        pipeline = get_empty_pipeline()
+        fill_modules()
+        module = instantiate_module("Align")
+        module.set_module_num(1)
+        pipeline.add_module(module)
+        fd = six.moves.StringIO()
+        pipeline.write_to_json(fd)
+        #print(fd.getvalue())
+        pipeline = Pipeline()
+        # TODO: implement load_from_json() below
+        fd.seek(0)
+        pipeline.load_from_json(fd)
+        # assert len(pipeline.modules()) == 1
+        # module_out = pipeline.modules()[-1]
+        # for setting_in, setting_out in zip(module.settings(), module_out.settings()):
+        #     assert setting_in.value == setting_out.value
 
     def test_dump(self):
         pipeline = get_empty_pipeline()

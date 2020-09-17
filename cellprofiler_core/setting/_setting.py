@@ -29,20 +29,20 @@ class Setting(abc.ABC):
         self.__key = uuid.uuid4()
         self.reset_view = reset_view
 
-
     def to_dict(self) -> dict:
         return {"name": ".".join([self.__module__, self.__class__.__qualname__]),
                 "text": self.__text,
                 "value": self.__value}
 
     def from_dict(dictionary: dict) -> "Setting":
-        parts = dictionary["name"].split('.')
-        m = __import__(parts[0])
-        #if "setting" in parts[1]: #Let s focus on classes that inherent from Setting
+        # TODO: Check with Allen that the code below is okay. It's ugly.
+        parts = dictionary["name"].split('.') #example: "cellprofiler_core.setting._path_list_display.PathListDisplay"
+        module = __import__(parts[0])
         for part in parts[1:]:
-            m = getattr(m, part)
+            module = getattr(module, part)
+        # TODO: Later you'll have to handle cases in which we do not have the expected (text, value) args
         try:
-            return m(dictionary["text"], dictionary["value"])
+            return module(dictionary["text"], dictionary["value"])
         except (AttributeError, TypeError) as e: #We'll handle this later
             pass
 

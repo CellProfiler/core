@@ -1,3 +1,4 @@
+import abc
 import sys
 import uuid
 
@@ -84,6 +85,24 @@ class Module:
         if not hasattr(self, "module_name"):
             self.module_name = self.__class__.__name__
         self.create_settings()
+
+    def to_dict(self) -> dict:
+        # TODO: the batch_state attribute is missing
+        return {"module_num": self.__module_num,
+                "settings": self.__settings,
+                "notes": self.__module_num,
+                "show_window": self.__show_window,
+                "wants_pause": self.__wants_pause,
+                "svn_version": self.__svn_version,
+                "enabled": self.__enabled,
+                "variable_revision_number": self.__variable_revision_number,
+                "module_name": self.module_name
+                }
+
+    @abc.abstractmethod
+    def from_dict(self, attributes_dict: dict, settings_dict: dict):
+        self.set_settings(settings_dict)
+        pass
 
     def __setattr__(self, slot, value):
         if hasattr(self, slot) and isinstance(getattr(self, slot), Setting):
