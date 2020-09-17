@@ -48,7 +48,7 @@ def dump(pipeline, fp, save_image_plane_details, sanitize=False):
                 phrase in setting.text.lower()
                 for phrase in ("username", "password", "host")
             ):
-                fp.write(f"    {setting.text}:*****\n")
+                fp.write(f"    [SensitiveSetting]:*****\n")
             else:
                 fp.write(f"    {setting.text}:{setting.unicode_value}\n")
 
