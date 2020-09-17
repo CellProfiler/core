@@ -612,6 +612,79 @@ class Pipeline:
     def dump(self, fp, save_image_plane_details=True, sanitize=False):
         dumpit(self, fp, save_image_plane_details, sanitize=sanitize)
 
+
+    def pipeline_to_json(self):
+        """Serializes pipeline into JSON"""
+        import json
+        from pathlib import Path
+        pipeline_dict = {}
+        for module in self.modules(False):
+            module_settings = []
+            for setting in module.settings():
+                module_settings.append(setting.to_dict())
+            attributes_dict = self.attributes_to_dict(module)
+            pipeline_dict[module.module_name] = {
+                "attributes": attributes_dict,
+                "settings": module_settings
+            }
+        with open(os.path.join(Path.home(), "Desktop/test.json"), 'w') as outfile:
+            json.dump(pipeline_dict, outfile, indent=4)
+
+        #Here, try to read it
+
+        from cellprofiler_core.setting._setting import Setting
+        with open(os.path.join(Path.home(), "Desktop/test.json")) as json_pipeline:
+            data = json.load(json_pipeline)
+            for module in data.keys():
+                settings = []
+                for setting_dict in data[module]["settings"]:
+                    setting = Setting.from_dict(setting_dict)
+                    settings.append(setting)
+
+
+        print("Done opening JSON file")
+
+
+
+    def attributes_to_dict(self, module):
+        default_module_attributes = (
+            "module_num",
+            "svn_version",
+            "variable_revision_number",
+            "show_window",
+            "notes",
+            "batch_state",
+            "enabled",
+            "wants_pause",
+        )
+        attributes_dict = {}
+        for default_module_attribute in default_module_attributes:
+            attributes_dict[default_module_attribute] = repr(getattr(module, default_module_attribute))
+        return attributes_dict
+
+    def define_json_schema(self):
+        schema = {
+            "type": "object",
+            "properties": {
+                "Images": {
+                    "type": "object",
+                    "properties": {
+                        "attributes": {
+                            "type": "object",
+                            "properties": {
+                                "module_num": {"type": "number"},
+                                "svn_version": {"type": "string"}
+                            }
+                        }
+                    }
+                },
+                "Metadata": {
+                    "type": "object"
+                }
+
+            }
+        }
+
     def save_pipeline_notes(self, fd, indent=2):
         """Save pipeline notes to a text file
 

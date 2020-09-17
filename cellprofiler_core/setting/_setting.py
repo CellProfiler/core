@@ -36,7 +36,18 @@ class Setting(abc.ABC):
                 "value": self.__value}
 
     def from_dict(dictionary: dict) -> "Setting":
-        return dictionary["name"](dictionary["text"], dictionary["value"])
+        parts = dictionary["name"].split('.')
+        m = __import__(parts[0])
+        #if "setting" in parts[1]: #Let s focus on classes that inherent from Setting
+        for part in parts[1:]:
+            m = getattr(m, part)
+        try:
+            return m(dictionary["text"], dictionary["value"])
+        except (AttributeError, TypeError) as e: #We'll handle this later
+            pass
+
+
+
 
 
     def set_value(self, value):
