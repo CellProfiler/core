@@ -1,12 +1,14 @@
+import abc
 import uuid
 
 from ._validation_error import ValidationError
 
 
-class Setting:
+class Setting(abc.ABC):
     """A module setting which holds a single string value
 
     """
+
 
     #
     # This should be set to False for UI elements like buttons and dividers
@@ -26,6 +28,16 @@ class Setting:
         self.doc = doc
         self.__key = uuid.uuid4()
         self.reset_view = reset_view
+
+
+    def to_dict(self) -> dict:
+        return {"name": ".".join([self.__module__, self.__class__.__qualname__]),
+                "text": self.__text,
+                "value": self.__value}
+
+    def from_dict(dictionary: dict) -> "Setting":
+        return dictionary["name"](dictionary["text"], dictionary["value"])
+
 
     def set_value(self, value):
         self.__value = value

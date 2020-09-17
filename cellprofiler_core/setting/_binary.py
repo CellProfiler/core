@@ -7,6 +7,9 @@ class Binary(Setting):
     for historical reasons.
     """
 
+    def to_dict(self) -> dict:
+        return {"name": ".".join([self.__module__, self.__class__.__qualname__])}
+
     def __init__(self, text, value, callback=None, *args, **kwargs):
         """Initialize the binary setting with the module, explanatory
         text and value. The value for a binary setting is True or
