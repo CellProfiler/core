@@ -64,6 +64,7 @@ class Module:
     def __init__(self):
         if self.__doc__ is None:
             self.__doc__ = sys.modules[self.__module__].__doc__
+
         self.function = None
         self.__module_num = -1
         self.__settings = []
@@ -86,6 +87,24 @@ class Module:
             self.module_name = self.__class__.__name__
         self.create_settings()
 
+    # TODO: Change things such that you have a classmethod here and define an alternate constructor
+    def load_module_from_settings(self, settings: list, attributes: dict):
+        self.__module_num = attributes["module_num"]
+        self.__show_window = attributes["show_window"]
+        self.__wants_pause = attributes["wants_pause"]
+        self.__svn_version = attributes["svn_version"]
+        self.__enabled = attributes["enabled"]
+        self.__variable_revision_number = attributes["variable_revision_number"]
+        self.module_name = attributes["module_name"]
+        setting_values = [setting.value for setting in settings]
+        self.set_settings_from_values(
+            setting_values, self.__variable_revision_number, self.module_name
+        )
+
+    @abc.abstractmethod
+    def update_settings(self, setting: list):
+        pass
+
     def to_dict(self) -> dict:
         # TODO: the batch_state attribute is missing
         return {"module_num": self.__module_num,
@@ -96,19 +115,18 @@ class Module:
                 "svn_version": self.__svn_version,
                 "enabled": self.__enabled,
                 "variable_revision_number": self.__variable_revision_number,
-                "module_name": self.module_name
+                "module_name": ".".join([self.__module__, self.__class__.__qualname__])
                 }
 
-    @abc.abstractmethod
-    def from_dict(self, attributes_dict: dict, settings_dict: dict):
-        self.set_settings(settings_dict)
-        pass
+    # instantiated_setting = from_dict()
+    # self.set_settings()
+
 
     def __setattr__(self, slot, value):
         if hasattr(self, slot) and isinstance(getattr(self, slot), Setting):
             assert isinstance(value, Setting), (
-                "Overwriting %s's %s existing Setting with value of type %s.\nUse __dict__['%s'] = ... to override."
-                % (self.module_name, slot, type(value), slot)
+                    "Overwriting %s's %s existing Setting with value of type %s.\nUse __dict__['%s'] = ... to override."
+                    % (self.module_name, slot, type(value), slot)
             )
         object.__setattr__(self, slot, value)
 
@@ -139,8 +157,8 @@ class Module:
         setting_values = []
         self.__notes = []
         if (
-            MODULE_NOTES in settings.dtype.fields
-            and settings[MODULE_NOTES].shape[1] > idx
+                MODULE_NOTES in settings.dtype.fields
+                and settings[MODULE_NOTES].shape[1] > idx
         ):
             n = settings[MODULE_NOTES][0, idx].flatten()
             for x in n:
@@ -187,7 +205,7 @@ class Module:
         pass
 
     def set_settings_from_values(
-        self, setting_values, variable_revision_number, module_name
+            self, setting_values, variable_revision_number, module_name
     ):
         """Set the settings in a module, given a list of values
 
@@ -197,7 +215,6 @@ class Module:
         whatever values are in the list or however many values
         are in the list.
         """
-
         setting_values, variable_revision_number = self.upgrade_settings(
             setting_values, int(variable_revision_number), module_name
         )
@@ -870,7 +887,7 @@ class Module:
         return []
 
     def get_measurement_scales(
-        self, pipeline, object_name, category, measurement, image_name
+            self, pipeline, object_name, category, measurement, image_name
     ):
         """Return a list of scales (eg for texture) at which a measurement was taken
         """
@@ -882,8 +899,8 @@ class Module:
 
         for setting in self.settings():
             if (
-                isinstance(setting, FileImageSubscriber,)
-                and setting.value == image_name
+                    isinstance(setting, FileImageSubscriber, )
+                    and setting.value == image_name
             ):
                 return True
         return False

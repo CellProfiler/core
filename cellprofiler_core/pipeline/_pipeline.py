@@ -19,6 +19,7 @@ import bioformats.formatreader
 import numpy
 
 from .io import dump as dumpit
+from ..module import Module
 from ..utilities.core.modules import instantiate_module, reload_modules
 from ..utilities.core.pipeline import read_file_list
 from ._listener import Listener
@@ -614,7 +615,8 @@ class Pipeline:
         dumpit(self, fp, save_image_plane_details, sanitize=sanitize)
 
 
-    def write_to_json(self, fp):
+
+    def json_dump(self, fp):
         """Serializes pipeline into JSON"""
         pipeline_dict = {}
         for module in self.modules(False):
@@ -629,17 +631,23 @@ class Pipeline:
         #     json.dump(pipeline_dict, outfile, indent=4)
         json.dump(pipeline_dict, fp, indent=4)
 
-    # TODO: Implement this
-    def load_from_json(self, fd):
-        # fd.seek(0)
-        # json_pipeline = fd.getvalue()
+
+    def json_load(self, fd):
         data = json.load(fd)
-        # for module in data.keys():
-        #     settings = []
-        #     for setting_dict in data[module]["settings"]:
-        #         setting = Setting.from_dict(setting_dict)
-        #         settings.append(setting)
-        #         #TODO: where do we go from there? What is the optimal way to create the pipeline?
+        for module_name in data.keys():
+            settings = []
+            attributes = data[module_name]["attributes"]
+            for setting_dict in data[module_name]["settings"]:
+                setting = Setting.from_dict(setting_dict)
+                settings.append(setting)
+            parts = attributes["module_name"].split('.')
+            # TODO : Instead of creating an instance of your module here, call an alternate constructor as Allen explained
+            module_class = __import__(parts[0])
+            for part in parts[1:]:
+                module_class = getattr(module_class, part)
+            module = module_class()
+            module.load_module_from_settings(settings, attributes)
+            self.add_module(module)
 
 
     def attributes_to_dict(self, module):

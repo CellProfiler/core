@@ -42,6 +42,9 @@ class Setting(abc.ABC):
             module = getattr(module, part)
         # TODO: Later you'll have to handle cases in which we do not have the expected (text, value) args
         try:
+            # TODO: Make sure to input choices to constructor of Choice
+            if "Choice" in dictionary["name"]:
+                return module(dictionary["text"], None, dictionary["value"])
             return module(dictionary["text"], dictionary["value"])
         except (AttributeError, TypeError) as e: #We'll handle this later
             pass

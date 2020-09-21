@@ -563,16 +563,18 @@ HasImagePlaneDetails:False"""
         module.set_module_num(1)
         pipeline.add_module(module)
         fd = six.moves.StringIO()
-        pipeline.write_to_json(fd)
-        #print(fd.getvalue())
+        pipeline.json_dump(fd)
+
         pipeline = Pipeline()
-        # TODO: implement load_from_json() below
         fd.seek(0)
-        pipeline.load_from_json(fd)
-        # assert len(pipeline.modules()) == 1
-        # module_out = pipeline.modules()[-1]
-        # for setting_in, setting_out in zip(module.settings(), module_out.settings()):
-        #     assert setting_in.value == setting_out.value
+        pipeline.json_load(fd)
+        #Get module name/class
+        #Instantiate module with the setting dictionary for that module
+
+        assert len(pipeline.modules()) == 1
+        module_out = pipeline.modules()[-1]
+        for setting_in, setting_out in zip(module.settings(), module_out.settings()):
+            assert setting_in.value == setting_out.value
 
     def test_dump(self):
         pipeline = get_empty_pipeline()
