@@ -568,8 +568,6 @@ HasImagePlaneDetails:False"""
         pipeline = Pipeline()
         fd.seek(0)
         pipeline.json_load(fd)
-        #Get module name/class
-        #Instantiate module with the setting dictionary for that module
 
         assert len(pipeline.modules()) == 1
         module_out = pipeline.modules()[-1]

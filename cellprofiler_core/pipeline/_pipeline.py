@@ -614,8 +614,6 @@ class Pipeline:
     def dump(self, fp, save_image_plane_details=True, sanitize=False):
         dumpit(self, fp, save_image_plane_details, sanitize=sanitize)
 
-
-
     def json_dump(self, fp):
         """Serializes pipeline into JSON"""
         pipeline_dict = {}
@@ -627,10 +625,7 @@ class Pipeline:
                 "attributes": module.to_dict(),
                 "settings": settings
             }
-        # with open(file_path, 'w') as outfile:
-        #     json.dump(pipeline_dict, outfile, indent=4)
         json.dump(pipeline_dict, fp, indent=4)
-
 
     def json_load(self, fd):
         data = json.load(fd)
@@ -641,14 +636,12 @@ class Pipeline:
                 setting = Setting.from_dict(setting_dict)
                 settings.append(setting)
             parts = attributes["module_name"].split('.')
-            # TODO : Instead of creating an instance of your module here, call an alternate constructor as Allen explained
             module_class = __import__(parts[0])
             for part in parts[1:]:
                 module_class = getattr(module_class, part)
             module = module_class()
-            module.load_module_from_settings(settings, attributes)
+            module.from_dict(settings, attributes)
             self.add_module(module)
-
 
     def attributes_to_dict(self, module):
         default_module_attributes = (
@@ -665,29 +658,6 @@ class Pipeline:
         for default_module_attribute in default_module_attributes:
             attributes_dict[default_module_attribute] = repr(getattr(module, default_module_attribute))
         return attributes_dict
-
-    def define_json_schema(self):
-        schema = {
-            "type": "object",
-            "properties": {
-                "Images": {
-                    "type": "object",
-                    "properties": {
-                        "attributes": {
-                            "type": "object",
-                            "properties": {
-                                "module_num": {"type": "number"},
-                                "svn_version": {"type": "string"}
-                            }
-                        }
-                    }
-                },
-                "Metadata": {
-                    "type": "object"
-                }
-
-            }
-        }
 
     def save_pipeline_notes(self, fd, indent=2):
         """Save pipeline notes to a text file

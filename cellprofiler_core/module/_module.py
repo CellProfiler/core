@@ -87,8 +87,7 @@ class Module:
             self.module_name = self.__class__.__name__
         self.create_settings()
 
-    # TODO: Change things such that you have a classmethod here and define an alternate constructor
-    def load_module_from_settings(self, settings: list, attributes: dict):
+    def from_dict(self, settings: list, attributes: dict):
         self.__module_num = attributes["module_num"]
         self.__show_window = attributes["show_window"]
         self.__wants_pause = attributes["wants_pause"]
@@ -101,12 +100,7 @@ class Module:
             setting_values, self.__variable_revision_number, self.module_name
         )
 
-    @abc.abstractmethod
-    def update_settings(self, setting: list):
-        pass
-
     def to_dict(self) -> dict:
-        # TODO: the batch_state attribute is missing
         return {"module_num": self.__module_num,
                 "settings": self.__settings,
                 "notes": self.__module_num,
@@ -118,9 +112,9 @@ class Module:
                 "module_name": ".".join([self.__module__, self.__class__.__qualname__])
                 }
 
-    # instantiated_setting = from_dict()
-    # self.set_settings()
-
+    @abc.abstractmethod
+    def update_settings(self, setting: list):
+        pass
 
     def __setattr__(self, slot, value):
         if hasattr(self, slot) and isinstance(getattr(self, slot), Setting):
