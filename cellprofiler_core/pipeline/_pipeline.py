@@ -572,7 +572,13 @@ class Pipeline:
             if len(a.split(":", 1)) != 2:
                 raise ValueError("Invalid attribute string: %s" % a)
             attribute, value = a.split(":", 1)
-            value = eval(value)
+            if attribute == "notes":
+                try:
+                    value = eval(value)
+                except SyntaxError:
+                    value = value[1:-1].replace('"', "").replace("'", "").split(",")
+            else:
+                value = eval(value)
             if attribute in skip_attributes:
                 continue
             # En/decode needed to read example cppipe format
