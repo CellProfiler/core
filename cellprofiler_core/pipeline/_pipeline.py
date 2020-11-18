@@ -577,6 +577,17 @@ class Pipeline:
                     value = eval(value)
                 except SyntaxError:
                     value = value[1:-1].replace('"', "").replace("'", "").split(",")
+                if any([chr(226) in line for line in value]):
+                    # There were some unusual UTF-8 characters present, let's try to fix them.
+                    try:
+                        value = [
+                            line.encode("raw-unicode-escape").decode("utf-8")
+                            for line in value
+                        ]
+                    except Exception as e:
+                        print(
+                            f"Error during notes decoding - {e} \nSome characters may have been lost"
+                        )
             else:
                 value = eval(value)
             if attribute in skip_attributes:
