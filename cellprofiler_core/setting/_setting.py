@@ -31,21 +31,21 @@ class Setting(abc.ABC):
 
     def to_dict(self) -> dict:
         return {"name": ".".join([self.__module__, self.__class__.__qualname__]),
-                "text": self.__text,
-                "value": self.__value}
+                "text": self.text,
+                "value": self.unicode_value}
 
-    def from_dict(dictionary: dict) -> "Setting":
+    def from_dict(setting_dict: dict) -> "Setting":
         # TODO: Check with Allen that the code below is okay. It's ugly.
-        parts = dictionary["name"].split('.') #example: "cellprofiler_core.setting._path_list_display.PathListDisplay"
+        parts = setting_dict["name"].split('.') #example: "cellprofiler_core.setting._path_list_display.PathListDisplay"
         module = __import__(parts[0])
         for part in parts[1:]:
             module = getattr(module, part)
         # TODO: Later you'll have to handle cases in which we do not have the expected (text, value) args
         try:
             # TODO: Make sure to input choices to constructor of Choice
-            if "Choice" in dictionary["name"]:
-                return module(dictionary["text"], None, dictionary["value"])
-            return module(dictionary["text"], dictionary["value"])
+            if "Choice" in setting_dict["name"]:
+                return module(setting_dict["text"], None, setting_dict["value"])
+            return module(setting_dict["text"], setting_dict["value"])
         except (AttributeError, TypeError) as e: #We'll handle this later
             pass
 

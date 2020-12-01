@@ -88,27 +88,27 @@ class Module:
         self.create_settings()
 
     def from_dict(self, settings: list, attributes: dict):
-        self.__module_num = attributes["module_num"]
-        self.__show_window = attributes["show_window"]
-        self.__wants_pause = attributes["wants_pause"]
-        self.__svn_version = attributes["svn_version"]
-        self.__enabled = attributes["enabled"]
-        self.__variable_revision_number = attributes["variable_revision_number"]
+        #FIXME use setattr(module, attribute, value) instead of hand writing things below.
+        self.module_num = attributes["module_num"]
+        self.show_window = attributes["show_window"]
+        self.wants_pause = attributes["wants_pause"]
+        self.svn_version = attributes["svn_version"]
+        self.enabled = attributes["enabled"]
+        self.variable_revision_number = attributes["variable_revision_number"]
         self.module_name = attributes["module_name"]
-        setting_values = [setting.value for setting in settings]
+        setting_values = [setting["value"] for setting in settings]
         self.set_settings_from_values(
-            setting_values, self.__variable_revision_number, self.module_name
+            setting_values, self.variable_revision_number, self.module_name
         )
 
     def to_dict(self) -> dict:
-        return {"module_num": self.__module_num,
-                "settings": self.__settings,
-                "notes": self.__module_num,
-                "show_window": self.__show_window,
-                "wants_pause": self.__wants_pause,
-                "svn_version": self.__svn_version,
-                "enabled": self.__enabled,
-                "variable_revision_number": self.__variable_revision_number,
+        return {"module_num": self.module_num,
+                "notes": self.module_num,
+                "show_window": self.show_window,
+                "wants_pause": self.wants_pause,
+                "svn_version": self.svn_version,
+                "enabled": self.enabled,
+                "variable_revision_number": self.variable_revision_number,
                 "module_name": ".".join([self.__module__, self.__class__.__qualname__])
                 }
 

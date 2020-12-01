@@ -563,6 +563,13 @@ HasImagePlaneDetails:False"""
         pipeline.load(pathname)
         with open("example.json", "w") as fp:
             pipeline.json_dump(fp)
+            fp.close()
+
+        new_pipeline = get_empty_pipeline()
+        with open("example.json", "r") as fp:
+            new_pipeline.json_load(fp)
+            fp.close()
+        pass
 
     def test_dump(self):
         pipeline = get_empty_pipeline()

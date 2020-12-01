@@ -623,6 +623,8 @@ class Pipeline:
             for setting in module.settings():
                 settings.append(setting.to_dict())
 
+            attrs = module.to_dict()
+
             modules += [
                 {
                     "attributes": module.to_dict(),
@@ -638,20 +640,20 @@ class Pipeline:
         json.dump(content, fp, indent=4)
 
     def json_load(self, fd):
-        data = json.load(fd)
-        for module_name in data.keys():
-            settings = []
-            attributes = data[module_name]["attributes"]
-            for setting_dict in data[module_name]["settings"]:
-                setting = Setting.from_dict(setting_dict)
-                settings.append(setting)
-            parts = attributes["module_name"].split('.')
+        pipeline_dict = json.load(fd)
+        new_modules = []
+        module_number = 1
+        for module in pipeline_dict["modules"]:
+            #settings = []
+            module_name = module["attributes"]["module_name"]
+            settings = [setting_dict for setting_dict in module["settings"]]
+            parts = module_name.split('.')
             module_class = __import__(parts[0])
             for part in parts[1:]:
                 module_class = getattr(module_class, part)
-            module = module_class()
-            module.from_dict(settings, attributes)
-            self.add_module(module)
+            new_module = module_class()
+            new_module.from_dict(settings, module["attributes"])
+            self.add_module(new_module)
 
     def attributes_to_dict(self, module):
         default_module_attributes = (
