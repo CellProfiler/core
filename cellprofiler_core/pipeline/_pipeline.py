@@ -616,16 +616,26 @@ class Pipeline:
 
     def json_dump(self, fp):
         """Serializes pipeline into JSON"""
-        pipeline_dict = {}
+        modules = []
+
         for module in self.modules(False):
             settings = []
             for setting in module.settings():
                 settings.append(setting.to_dict())
-            pipeline_dict[module.module_name] = {
-                "attributes": module.to_dict(),
-                "settings": settings
-            }
-        json.dump(pipeline_dict, fp, indent=4)
+
+            modules += [
+                {
+                    "attributes": module.to_dict(),
+                    "settings": settings
+                }
+            ]
+
+        content = {
+            "modules": modules,
+            "version": "v6"
+        }
+
+        json.dump(content, fp, indent=4)
 
     def json_load(self, fd):
         data = json.load(fd)

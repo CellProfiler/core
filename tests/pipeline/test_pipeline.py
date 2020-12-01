@@ -556,23 +556,13 @@ HasImagePlaneDetails:False"""
                 success = False
         assert success
 
-    def test_pipeline_to_json(self):
+    def test_example_pipeline_to_json(self):
         pipeline = get_empty_pipeline()
-        fill_modules()
-        module = instantiate_module("Align")
-        module.set_module_num(1)
-        pipeline.add_module(module)
-        fd = six.moves.StringIO()
-        pipeline.json_dump(fd)
-
-        pipeline = Pipeline()
-        fd.seek(0)
-        pipeline.json_load(fd)
-
-        assert len(pipeline.modules()) == 1
-        module_out = pipeline.modules()[-1]
-        for setting_in, setting_out in zip(module.settings(), module_out.settings()):
-            assert setting_in.value == setting_out.value
+        pathname = os.path.join("/Users/alucas/Documents/com/github/CellProfiler/CellProfiler/cellprofiler"
+                                         "/data/examples/ExampleFly/ExampleFly.cppipe")
+        pipeline.load(pathname)
+        with open("example.json", "w") as fp:
+            pipeline.json_dump(fp)
 
     def test_dump(self):
         pipeline = get_empty_pipeline()
