@@ -19,7 +19,6 @@ import bioformats.formatreader
 import numpy
 
 from .io import dump as dumpit
-from ..module import Module
 from ..utilities.core.modules import instantiate_module, reload_modules
 from ..utilities.core.pipeline import read_file_list
 from ._listener import Listener
@@ -83,8 +82,7 @@ from ..measurement import Measurements
 from ..object import ObjectSet
 from ..preferences import get_headless
 from ..preferences import report_progress
-from ..setting import Measurement, Setting
-from ..setting.subscriber import ImageSubscriber
+from ..setting import Measurement
 from ..setting.text import Name
 from ..utilities.measurement import load_measurements
 from ..workspace import Workspace
@@ -614,35 +612,8 @@ class Pipeline:
     def dump(self, fp, save_image_plane_details=True, sanitize=False):
         dumpit(self, fp, save_image_plane_details, sanitize=sanitize)
 
-    def json_dump(self, fp):
-        """Serializes pipeline into JSON"""
-        modules = []
-
-        for module in self.modules(False):
-            settings = []
-            for setting in module.settings():
-                settings.append(setting.to_dict())
-
-            attrs = module.to_dict()
-
-            modules += [
-                {
-                    "attributes": module.to_dict(),
-                    "settings": settings
-                }
-            ]
-
-        content = {
-            "modules": modules,
-            "version": "v6"
-        }
-
-        json.dump(content, fp, indent=4)
-
     def json_load(self, fd):
         pipeline_dict = json.load(fd)
-        new_modules = []
-        module_number = 1
         for module in pipeline_dict["modules"]:
             #settings = []
             module_name = module["attributes"]["module_name"]
