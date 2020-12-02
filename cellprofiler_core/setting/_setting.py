@@ -29,29 +29,28 @@ class Setting(abc.ABC):
         self.__key = uuid.uuid4()
         self.reset_view = reset_view
 
-    def to_dict(self) -> dict:
+    def to_dict(self, sanitize=False) -> dict:
+        if sanitize and any(phrase in self.text.lower() for phrase in ("username", "password", "host")):
+            text = "[SensitiveSetting]:*****"
+        else:
+            text = self.text
         return {"name": ".".join([self.__module__, self.__class__.__qualname__]),
-                "text": self.text,
+                "text": text,
                 "value": self.unicode_value}
 
     def from_dict(setting_dict: dict) -> "Setting":
-        # TODO: Check with Allen that the code below is okay. It's ugly.
         parts = setting_dict["name"].split('.') #example: "cellprofiler_core.setting._path_list_display.PathListDisplay"
         module = __import__(parts[0])
         for part in parts[1:]:
             module = getattr(module, part)
-        # TODO: Later you'll have to handle cases in which we do not have the expected (text, value) args
+        # FIXME: Later you'll have to handle cases in which we do not have the expected (text, value) args
         try:
-            # TODO: Make sure to input choices to constructor of Choice
+            # FIXME: Make sure to input choices to constructor of Choice
             if "Choice" in setting_dict["name"]:
                 return module(setting_dict["text"], None, setting_dict["value"])
             return module(setting_dict["text"], setting_dict["value"])
         except (AttributeError, TypeError) as e: #We'll handle this later
             pass
-
-
-
-
 
     def set_value(self, value):
         self.__value = value
