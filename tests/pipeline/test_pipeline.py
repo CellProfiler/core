@@ -570,7 +570,14 @@ HasImagePlaneDetails:False"""
         with open("example.json", "r") as fp:
             load(new_pipeline, fp)
             fp.close()
-        pass
+
+        modules_in = pipeline.modules()
+        modules_out = new_pipeline.modules()
+        for module_in, module_out in zip(modules_in, modules_out):
+            for setting_in, setting_out in zip(module_in.settings(), module_out.settings()):
+                assert setting_in.value == setting_out.value
+                assert setting_in.text == setting_out.text
+
 
     def test_dump(self):
         pipeline = get_empty_pipeline()
