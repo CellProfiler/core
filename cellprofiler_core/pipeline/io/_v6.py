@@ -51,7 +51,8 @@ def dump(pipeline, fp, save_image_plane_details):
 
 def load(pipeline, fd):
     pipeline_dict = json.load(fd)
-    with open("/Users/alucas/Documents/com/github/CellProfiler/core/tests/pipeline/schema.json") as f:
+    d = os.getcwd()
+    with open(os.path.join("data", "schema", "schema.json")) as f:
         schema = json.load(f)
     try:
         validate(pipeline_dict, schema=schema)
