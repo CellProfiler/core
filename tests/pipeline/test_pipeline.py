@@ -46,7 +46,7 @@ from cellprofiler_core.pipeline import (
     MeasurementDependency,
     LoadException,
 )
-from cellprofiler_core.pipeline.io._v6 import dump
+from cellprofiler_core.pipeline.io._v6 import dump, load
 from cellprofiler_core.preferences import (
     set_headless,
     set_default_output_directory,
@@ -568,7 +568,7 @@ HasImagePlaneDetails:False"""
 
         new_pipeline = get_empty_pipeline()
         with open("example.json", "r") as fp:
-            new_pipeline.json_load(fp)
+            load(new_pipeline, fp)
             fp.close()
         pass
 

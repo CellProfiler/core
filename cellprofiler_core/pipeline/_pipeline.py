@@ -3,7 +3,6 @@ import datetime
 import hashlib
 import importlib
 import io
-import json
 import logging
 import os
 import os.path
@@ -611,36 +610,6 @@ class Pipeline:
 
     def dump(self, fp, save_image_plane_details=True, sanitize=False):
         dumpit(self, fp, save_image_plane_details, sanitize=sanitize)
-
-    def json_load(self, fd):
-        pipeline_dict = json.load(fd)
-        for module in pipeline_dict["modules"]:
-            #settings = []
-            module_name = module["attributes"]["module_name"]
-            settings = [setting_dict for setting_dict in module["settings"]]
-            parts = module_name.split('.')
-            module_class = __import__(parts[0])
-            for part in parts[1:]:
-                module_class = getattr(module_class, part)
-            new_module = module_class()
-            new_module.from_dict(settings, module["attributes"])
-            self.add_module(new_module)
-
-    def attributes_to_dict(self, module):
-        default_module_attributes = (
-            "module_num",
-            "svn_version",
-            "variable_revision_number",
-            "show_window",
-            "notes",
-            "batch_state",
-            "enabled",
-            "wants_pause",
-        )
-        attributes_dict = {}
-        for default_module_attribute in default_module_attributes:
-            attributes_dict[default_module_attribute] = repr(getattr(module, default_module_attribute))
-        return attributes_dict
 
     def save_pipeline_notes(self, fd, indent=2):
         """Save pipeline notes to a text file
