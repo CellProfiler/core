@@ -1,5 +1,11 @@
 import json
+import logging
+import os
 import re
+
+logger = logging.getLogger(__name__)
+
+from jsonschema import validate, ValidationError, SchemaError
 
 import cellprofiler_core
 from cellprofiler_core.constants.pipeline import IMAGE_PLANE_DESCRIPTOR_VERSION, H_PLANE_COUNT
@@ -26,7 +32,7 @@ def dump(pipeline, fp, save_image_plane_details):
         "date_revision": int(re.sub(r"\.|rc\d", "", cellprofiler_core.__version__)),
         "module_count": len(pipeline.modules(False)),
         "modules": modules,
-        "version": "v6"}
+        "version": 6}
 
     if len(pipeline.file_list) == 0:
         save_image_plane_details = False
@@ -45,6 +51,15 @@ def dump(pipeline, fp, save_image_plane_details):
 
 def load(pipeline, fd):
     pipeline_dict = json.load(fd)
+    with open("schema.json") as f:
+        schema = json.load(f)
+    try:
+        validate(pipeline_dict, schema=schema)
+    except SchemaError as e:
+        logger.warning(f"The schema used for validation is invalid: {e.message}")
+    except ValidationError as e:
+        logger.warning(f"The loaded pipeline is invalid. It does not satisfy its requirement: {e.message}")
+
     for module in pipeline_dict["modules"]:
         module_name = module["attributes"]["module_name"]
         settings = [setting_dict for setting_dict in module["settings"]]
