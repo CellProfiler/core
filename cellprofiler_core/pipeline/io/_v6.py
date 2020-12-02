@@ -51,7 +51,7 @@ def dump(pipeline, fp, save_image_plane_details):
 
 def load(pipeline, fd):
     pipeline_dict = json.load(fd)
-    with open("schema.json") as f:
+    with open("/Users/alucas/Documents/com/github/CellProfiler/core/tests/pipeline/schema.json") as f:
         schema = json.load(f)
     try:
         validate(pipeline_dict, schema=schema)
@@ -61,9 +61,9 @@ def load(pipeline, fd):
         logger.warning(f"The loaded pipeline is invalid. It does not satisfy its requirement: {e.message}")
 
     for module in pipeline_dict["modules"]:
-        module_name = module["attributes"]["module_name"]
+        module_path = module["attributes"]["module_path"]
         settings = [setting_dict for setting_dict in module["settings"]]
-        parts = module_name.split('.')
+        parts = module_path.split('.')
         module_class = __import__(parts[0])
         for part in parts[1:]:
             module_class = getattr(module_class, part)

@@ -95,10 +95,11 @@ class Module:
         self.svn_version = attributes["svn_version"]
         self.enabled = attributes["enabled"]
         self.variable_revision_number = attributes["variable_revision_number"]
+        self.module_path = attributes["module_path"]
         self.module_name = attributes["module_name"]
         setting_values = [setting["value"] for setting in settings]
         self.set_settings_from_values(
-            setting_values, self.variable_revision_number, self.module_name
+            setting_values, self.variable_revision_number, self.module_path
         )
 
     def to_dict(self) -> dict:
@@ -109,7 +110,8 @@ class Module:
                 "svn_version": self.svn_version,
                 "enabled": self.enabled,
                 "variable_revision_number": self.variable_revision_number,
-                "module_name": ".".join([self.__module__, self.__class__.__qualname__])
+                "module_name": self.__class__.__qualname__,
+                "module_path": ".".join([self.__module__, self.__class__.__qualname__])
                 }
 
     @abc.abstractmethod
