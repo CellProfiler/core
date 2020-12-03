@@ -104,7 +104,7 @@ class Module:
 
     def to_dict(self) -> dict:
         return {"module_num": self.module_num,
-                "notes": self.module_num,
+                "notes": self.notes,
                 "show_window": self.show_window,
                 "wants_pause": self.wants_pause,
                 "svn_version": self.svn_version,

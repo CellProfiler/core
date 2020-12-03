@@ -27,15 +27,15 @@ def dump(pipeline, fp, save_image_plane_details):
             }
         ]
 
+    if len(pipeline.file_list) == 0:
+        save_image_plane_details = False
+
     content = {
         "has_image_plane_details": save_image_plane_details,
         "date_revision": int(re.sub(r"\.|rc\d", "", cellprofiler_core.__version__)),
         "module_count": len(pipeline.modules(False)),
         "modules": modules,
         "version": "v6"}
-
-    if len(pipeline.file_list) == 0:
-        save_image_plane_details = False
 
     if save_image_plane_details:
         urls = [url for url in pipeline.file_list]
