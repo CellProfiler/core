@@ -32,7 +32,7 @@ def dump(pipeline, fp, save_image_plane_details):
         "date_revision": int(re.sub(r"\.|rc\d", "", cellprofiler_core.__version__)),
         "module_count": len(pipeline.modules(False)),
         "modules": modules,
-        "version": 6}
+        "version": "v6"}
 
     if len(pipeline.file_list) == 0:
         save_image_plane_details = False
