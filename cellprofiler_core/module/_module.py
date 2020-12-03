@@ -101,7 +101,6 @@ class Module:
                 }
 
     def from_dict(self, settings: list, attributes: dict):
-        #FIXME use setattr(module, attribute, value) instead of hand writing things below.
         self.module_num = attributes["module_num"]
         self.show_window = attributes["show_window"]
         self.wants_pause = attributes["wants_pause"]

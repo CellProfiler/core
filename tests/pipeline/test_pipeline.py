@@ -1,6 +1,5 @@
 """test_Pipeline.py - test the CellProfiler.Pipeline module"""
 
-
 import cProfile
 import io
 import os
@@ -15,7 +14,6 @@ import numpy
 import numpy.lib.index_tricks
 import six
 import six.moves
-
 
 import tests.modules
 from cellprofiler_core.constants.measurement import (
@@ -88,13 +86,13 @@ def module_directory():
 def image_with_one_cell(size=(100, 100)):
     img = numpy.zeros(size)
     mgrid = numpy.lib.index_tricks.nd_grid()
-    g = mgrid[0 : size[0], 0 : size[1]] - 50
+    g = mgrid[0: size[0], 0: size[1]] - 50
     dist = (
-        g[0, :, :] * g[0, :, :] + g[1, :, :] * g[1, :, :]
+            g[0, :, :] * g[0, :, :] + g[1, :, :] * g[1, :, :]
     )  # squared Euclidean distance.
     img[dist < 25] = (
-        25.0 - dist.astype(float)[dist < 25]
-    ) / 25  # A circle centered at (50, 50)
+                             25.0 - dist.astype(float)[dist < 25]
+                     ) / 25  # A circle centered at (50, 50)
     return img
 
 
@@ -271,10 +269,10 @@ HasImagePlaneDetails:False"""
             for group_number_idx, (grouping, image_numbers) in enumerate(groupings):
                 for group_idx, image_number in enumerate(image_numbers):
                     workspace.measurements["Image", GROUP_NUMBER, image_number,] = (
-                        group_number_idx + 1
+                            group_number_idx + 1
                     )
                     workspace.measurements["Image", GROUP_INDEX, image_number,] = (
-                        group_idx + 1
+                            group_idx + 1
                     )
             expects[0], expects[1] = ("PrepareGroup", 0)
             return True
@@ -364,10 +362,10 @@ HasImagePlaneDetails:False"""
             for group_number_idx, (grouping, image_numbers) in enumerate(groupings):
                 for group_idx, image_number in enumerate(image_numbers):
                     workspace.measurements["Image", GROUP_NUMBER, image_number,] = (
-                        group_number_idx + 1
+                            group_number_idx + 1
                     )
                     workspace.measurements["Image", GROUP_INDEX, image_number,] = (
-                        group_idx + 1
+                            group_idx + 1
                     )
             expects[0], expects[1] = ("PrepareGroup", 1)
             return True
@@ -557,7 +555,7 @@ HasImagePlaneDetails:False"""
                 success = False
         assert success
 
-    def test_load(self):
+    def test_load_json(self):
         pipeline_v5 = get_empty_pipeline()
         pipeline_v6 = get_empty_pipeline()
 
@@ -574,10 +572,36 @@ HasImagePlaneDetails:False"""
             for setting_in, setting_out in zip(module_v5.settings(), module_v5.settings()):
                 assert setting_in.value == setting_out.value
 
-    def test_dump(self):
-        pass
+    def test_dump_json(self):
+        pipeline = get_empty_pipeline()
+        module = instantiate_module("Images")
+        module.set_module_num(1)
+        pipeline.add_module(module)
+        temp_file = tempfile.NamedTemporaryFile(mode="w+b", suffix=".json", delete=False)
+        print(temp_file.name)
+        with open(temp_file.name, "w") as fp:
+            dump(pipeline, fp, save_image_plane_details=True)
+            fp.seek(0)
+        temp_file.flush()
+        fp.close()
 
-    def test_load_and_dump(self):
+        import json
+        with open("../data/pipeline/images.json", "r") as fd:
+            pipeline_groundtruth = json.load(fd)
+        with open(temp_file.name, "r") as fp:
+            pipeline_v6 = json.load(fp)
+
+        assert len(pipeline_groundtruth.keys()) == len(pipeline_v6.keys())
+        for key in pipeline_groundtruth.keys():
+            if "modules" in key:
+                for setting_v6, setting_gt in zip(pipeline_v6["modules"][0]["settings"], pipeline_groundtruth["modules"][0]["settings"]):
+                    assert setting_v6["value"] == setting_gt["value"]
+                    assert setting_v6["name"] == setting_gt["name"]
+                    assert setting_v6["text"] == setting_gt["text"]
+            else:
+                assert pipeline_groundtruth[key] == pipeline_v6[key]
+
+    def test_load_and_dump_json(self):
         pipeline = get_empty_pipeline()
         pathname = "../../../CellProfiler/cellprofiler/data/examples/ExampleFly/ExampleFly.cppipe"
         pipeline.load(pathname)
@@ -600,7 +624,6 @@ HasImagePlaneDetails:False"""
             for setting_in, setting_out in zip(module_in.settings(), module_out.settings()):
                 assert setting_in.value == setting_out.value
                 assert setting_in.text == setting_out.text
-
 
     def test_dump(self):
         pipeline = get_empty_pipeline()
@@ -721,7 +744,7 @@ HasImagePlaneDetails:False"""
         assert value == "∢8"
         mline = lines[7]
         idx0 = mline.find("notes:")
-        mline = mline[(idx0 + 6) :]
+        mline = mline[(idx0 + 6):]
         idx1 = mline.find("|")
         value = eval(mline[:idx1])
         assert value == module.notes
@@ -752,7 +775,7 @@ HasImagePlaneDetails:False"""
         pipeline.loadtxt(fd)
         assert len(pipeline.modules()) == 1
         result_module = pipeline.modules()[0]
-        assert isinstance(result_module, MeasurementFixture,)
+        assert isinstance(result_module, MeasurementFixture, )
         assert module.notes == result_module.notes
         assert module.my_variable.value == result_module.my_variable.value
 
@@ -775,7 +798,7 @@ HasImagePlaneDetails:False"""
         module.notes = "αβ"
         assert len(pipeline.modules()) == 1
         result_module = pipeline.modules()[0]
-        assert isinstance(result_module, MeasurementFixture,)
+        assert isinstance(result_module, MeasurementFixture, )
         assert module.notes == result_module.notes
         assert module.my_variable.value == result_module.my_variable.value
 
@@ -838,16 +861,16 @@ HasImagePlaneDetails:False"""
 
     def test_get_provider_dictionary_nothing(self):
         for module in (
-            ATestModule(),
-            ATestModule([Choice("foo", ["Hello", "World"])]),
+                ATestModule(),
+                ATestModule([Choice("foo", ["Hello", "World"])]),
         ):
             pipeline = get_empty_pipeline()
             module.set_module_num(1)
             pipeline.add_module(module)
             for groupname in (
-                "imagegroup",
-                "objectgroup",
-                "measurementsgroup",
+                    "imagegroup",
+                    "objectgroup",
+                    "measurementsgroup",
             ):
                 d = pipeline.get_provider_dictionary(groupname)
                 assert len(d) == 0
@@ -1013,10 +1036,10 @@ HasImagePlaneDetails:False"""
 
     def test_get_dependency_graph_empty(self):
         for module in (
-            ATestModule(),
-            ATestModule([Choice("foo", ["Hello", "World"])]),
-            ATestModule([ImageName("foo", IMAGE_NAME)]),
-            ATestModule([ImageName("foo", IMAGE_NAME)]),
+                ATestModule(),
+                ATestModule([Choice("foo", ["Hello", "World"])]),
+                ATestModule([ImageName("foo", IMAGE_NAME)]),
+                ATestModule([ImageName("foo", IMAGE_NAME)]),
         ):
             pipeline = Pipeline()
             module.set_module_num(1)
@@ -1027,11 +1050,11 @@ HasImagePlaneDetails:False"""
     def test_get_dependency_graph_image(self):
         pipeline = Pipeline()
         for i, module in enumerate(
-            (
-                ATestModule([ImageName("foo", IMAGE_NAME)]),
-                ATestModule([ImageName("foo", ALT_IMAGE_NAME)]),
-                ATestModule([ImageName("foo", IMAGE_NAME)]),
-            )
+                (
+                        ATestModule([ImageName("foo", IMAGE_NAME)]),
+                        ATestModule([ImageName("foo", ALT_IMAGE_NAME)]),
+                        ATestModule([ImageName("foo", IMAGE_NAME)]),
+                )
         ):
             module.module_num = i + 1
             pipeline.add_module(module)
@@ -1048,11 +1071,11 @@ HasImagePlaneDetails:False"""
     def test_get_dependency_graph_object(self):
         pipeline = Pipeline()
         for i, module in enumerate(
-            (
-                ATestModule([LabelName("foo", OBJECT_NAME)]),
-                ATestModule([ImageName("foo", IMAGE_NAME)]),
-                ATestModule([LabelName("foo", OBJECT_NAME)]),
-            )
+                (
+                        ATestModule([LabelName("foo", OBJECT_NAME)]),
+                        ATestModule([ImageName("foo", IMAGE_NAME)]),
+                        ATestModule([LabelName("foo", OBJECT_NAME)]),
+                )
         ):
             module.module_num = i + 1
             pipeline.add_module(module)
@@ -1071,11 +1094,11 @@ HasImagePlaneDetails:False"""
         measurement_columns = [(OBJECT_NAME, FEATURE_NAME, COLTYPE_FLOAT,)]
         measurement_setting = Measurement("text", lambda: OBJECT_NAME, FEATURE_NAME)
         for i, module in enumerate(
-            (
-                ATestModule(measurement_columns=measurement_columns),
-                ATestModule([ImageName("foo", ALT_IMAGE_NAME)]),
-                ATestModule([measurement_setting]),
-            )
+                (
+                        ATestModule(measurement_columns=measurement_columns),
+                        ATestModule([ImageName("foo", ALT_IMAGE_NAME)]),
+                        ATestModule([measurement_setting]),
+                )
         ):
             module.module_num = i + 1
             pipeline.add_module(module)
@@ -1120,9 +1143,9 @@ HasImagePlaneDetails:False"""
         for metadata_columns, body_lines, expected in test_data:
             s = '"%s":"%d","%s":"%d"\n' % ("Version", 1, "PlaneCount", len(body_lines),)
             s += (
-                '"'
-                + '","'.join(["URL", "Series", "Index", "Channel"] + metadata_columns)
-                + '"\n'
+                    '"'
+                    + '","'.join(["URL", "Series", "Index", "Channel"] + metadata_columns)
+                    + '"\n'
             )
 
             s += "\n".join(body_lines) + "\n"
@@ -1236,11 +1259,11 @@ def profile_pipeline(pipeline_filename, output_filename=None, always_run=True):
 
     # helper function
     def run_pipeline(
-        pipeline_filename,
-        image_set_start=None,
-        image_set_end=None,
-        groups=None,
-        measurements_filename=None,
+            pipeline_filename,
+            image_set_start=None,
+            image_set_end=None,
+            groups=None,
+            measurements_filename=None,
     ):
         pipeline = Pipeline()
         measurements = None
@@ -1295,7 +1318,7 @@ class ATestModule(Module):
     def get_categories(self, pipeline, object_name):
         categories = set()
         for cobject_name, cfeature_name, ctype in self.get_measurement_columns(
-            pipeline
+                pipeline
         ):
             if cobject_name == object_name:
                 categories.add(cfeature_name.split("_")[0])
@@ -1304,7 +1327,7 @@ class ATestModule(Module):
     def get_measurements(self, pipeline, object_name, category):
         measurements = set()
         for cobject_name, cfeature_name, ctype in self.get_measurement_columns(
-            pipeline
+                pipeline
         ):
             ccategory, measurement = cfeature_name.split("_", 1)
             if cobject_name == object_name and category == category:
@@ -1347,17 +1370,17 @@ class GroupModule(Module):
     variable_revision_number = 1
 
     def setup(
-        self,
-        groupings,
-        prepare_run_callback=None,
-        prepare_group_callback=None,
-        run_callback=None,
-        post_group_callback=None,
-        post_run_callback=None,
-        get_measurement_columns_callback=None,
-        display_callback=None,
-        display_post_group_callback=None,
-        display_post_run_callback=None,
+            self,
+            groupings,
+            prepare_run_callback=None,
+            prepare_group_callback=None,
+            run_callback=None,
+            post_group_callback=None,
+            post_run_callback=None,
+            get_measurement_columns_callback=None,
+            display_callback=None,
+            display_post_group_callback=None,
+            display_post_run_callback=None,
     ):
         self.prepare_run_callback = prepare_run_callback
         self.prepare_group_callback = prepare_group_callback
