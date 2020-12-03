@@ -87,6 +87,19 @@ class Module:
             self.module_name = self.__class__.__name__
         self.create_settings()
 
+    def to_dict(self) -> dict:
+        return {"module_num": self.module_num,
+                "notes": self.notes,
+                "show_window": self.show_window,
+                "wants_pause": self.wants_pause,
+                "svn_version": self.svn_version,
+                "enabled": self.enabled,
+                "variable_revision_number": self.variable_revision_number,
+                "batch_state": repr(self.batch_state),
+                "module_name": self.__class__.__qualname__,
+                "module_path": ".".join([self.__module__, self.__class__.__qualname__])
+                }
+
     def from_dict(self, settings: list, attributes: dict):
         #FIXME use setattr(module, attribute, value) instead of hand writing things below.
         self.module_num = attributes["module_num"]
@@ -101,18 +114,6 @@ class Module:
         self.set_settings_from_values(
             setting_values, self.variable_revision_number, self.module_path
         )
-
-    def to_dict(self) -> dict:
-        return {"module_num": self.module_num,
-                "notes": self.notes,
-                "show_window": self.show_window,
-                "wants_pause": self.wants_pause,
-                "svn_version": self.svn_version,
-                "enabled": self.enabled,
-                "variable_revision_number": self.variable_revision_number,
-                "module_name": self.__class__.__qualname__,
-                "module_path": ".".join([self.__module__, self.__class__.__qualname__])
-                }
 
     @abc.abstractmethod
     def update_settings(self, setting: list):
