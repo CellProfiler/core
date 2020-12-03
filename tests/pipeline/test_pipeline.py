@@ -577,18 +577,22 @@ HasImagePlaneDetails:False"""
     def test_dump(self):
         pass
 
-    def test_example_pipeline_to_json(self):
+    def test_load_and_dump(self):
         pipeline = get_empty_pipeline()
         pathname = "../../../CellProfiler/cellprofiler/data/examples/ExampleFly/ExampleFly.cppipe"
         pipeline.load(pathname)
-        with open("example.json", "w") as fp:
+
+        temp_file = tempfile.NamedTemporaryFile(mode="w+b", suffix=".json", delete=False)
+        with open(temp_file.name, "w") as fp:
             dump(pipeline, fp, save_image_plane_details=True)
-            fp.close()
+            fp.seek(0)
+        temp_file.flush()
+        fp.close()
 
         new_pipeline = get_empty_pipeline()
-        with open("example.json", "r") as fp:
+        with open(temp_file.name, "r") as fp:
+            fp.seek(0)
             load(new_pipeline, fp)
-            fp.close()
 
         modules_in = pipeline.modules()
         modules_out = new_pipeline.modules()
