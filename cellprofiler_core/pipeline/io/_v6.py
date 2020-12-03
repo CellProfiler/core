@@ -51,14 +51,6 @@ def dump(pipeline, fp, save_image_plane_details):
 
 def load(pipeline, fd):
     pipeline_dict = json.load(fd)
-    with open(os.path.join("data", "schema", "schema.json")) as f:
-        schema = json.load(f)
-    try:
-        validate(pipeline_dict, schema=schema)
-    except SchemaError as e:
-        logger.warning(f"The schema used for validation is invalid: {e.message}")
-    except ValidationError as e:
-        logger.warning(f"The loaded pipeline is invalid. It does not satisfy its requirement: {e.message}")
 
     for module in pipeline.modules():
         pipeline.remove_module(module.module_num)
