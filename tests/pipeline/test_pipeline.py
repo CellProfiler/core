@@ -557,10 +557,29 @@ HasImagePlaneDetails:False"""
                 success = False
         assert success
 
+    def test_load(self):
+        pipeline_v5 = get_empty_pipeline()
+        pipeline_v6 = get_empty_pipeline()
+
+        v5_pathname = "../../../CellProfiler/cellprofiler/data/examples/ExampleFly/ExampleFly.cppipe"
+        v6_pathname = "../data/pipeline/v6.json"
+
+        pipeline_v5.load(v5_pathname)
+        with open(v6_pathname, "r") as fd:
+            load(pipeline_v6, fd)
+
+        modules_v5 = pipeline_v5.modules()
+        modules_v6 = pipeline_v6.modules()
+        for module_v5, module_v5 in zip(modules_v5, modules_v6):
+            for setting_in, setting_out in zip(module_v5.settings(), module_v5.settings()):
+                assert setting_in.value == setting_out.value
+
+    def test_dump(self):
+        pass
+
     def test_example_pipeline_to_json(self):
         pipeline = get_empty_pipeline()
-        pathname = os.path.join("/Users/alucas/Documents/com/github/CellProfiler/CellProfiler/cellprofiler"
-                                         "/data/examples/ExampleFly/ExampleFly.cppipe")
+        pathname = "../../../CellProfiler/cellprofiler/data/examples/ExampleFly/ExampleFly.cppipe"
         pipeline.load(pathname)
         with open("example.json", "w") as fp:
             dump(pipeline, fp, save_image_plane_details=True)
