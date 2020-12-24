@@ -1,5 +1,6 @@
 import bisect
 import datetime
+import gc
 import hashlib
 import importlib
 import io
@@ -1070,6 +1071,8 @@ class Pipeline:
                         measurements.add_experiment_measurement(EXIT_STATUS, "Failure")
 
                         return
+
+                gc.collect()
 
             # Close cached readers.
             # This may play a big role with cluster deployments or long standing jobs
