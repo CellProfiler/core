@@ -115,6 +115,9 @@ def is_numpy_file(filename):
 def is_matlab_file(filename):
     return os.path.splitext(filename)[-1].lower() == ".mat"
 
+def is_omero3d_path(url):
+    return url.lower().startswith('omero-3d:')
+
 
 def loadmat(path):
     imgdata = scipy.io.matlab.mio.loadmat(path, struct_as_record=True)
