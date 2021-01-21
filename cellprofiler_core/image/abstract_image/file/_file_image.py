@@ -9,11 +9,17 @@ import imageio
 import numpy
 import skimage.io
 
+import requests
+from PIL import Image as PilImage
+from io import BytesIO
+from posixpath import join as urljoin
+
 import cellprofiler_core.preferences
 from .._abstract_image import AbstractImage
 from ..._image import Image
 from ....utilities.image import is_numpy_file
 from ....utilities.image import is_matlab_file
+from ....utilities.image import is_omero3d_path
 from ....utilities.image import loadmat
 from ....utilities.image import load_data_file
 from ....utilities.image import generate_presigned_url
@@ -185,6 +191,9 @@ class FileImage(AbstractImage):
         return True
 
     def get_full_name(self):
+        print("Getting full name {}:{}".format(self.__url, self.get_url()))
+        if is_omero3d_path(self.__url):
+            return self.get_url()
         self.cache_file()
         if self.__is_cached:
             return self.__cached_file
@@ -203,7 +212,9 @@ class FileImage(AbstractImage):
         #
         # Cache the MD5 hash on the image reader
         #
-        if is_matlab_file(self.__filename) or is_numpy_file(self.__filename):
+        if (is_matlab_file(self.__filename) or
+                is_numpy_file(self.__filename) or
+                is_omero3d_path(self.get_url())):
             rdr = None
         else:
             from bioformats.formatreader import get_image_reader
@@ -329,10 +340,50 @@ class FileImage(AbstractImage):
 
     def __set_image_volume(self):
         pathname = url2pathname(self.get_url())
-
+        print("Using pathname: {} for url {}".format(pathname, self.get_url()))
         # Volume loading is currently limited to tiffs/numpy files only
         if is_numpy_file(self.__filename):
             data = numpy.load(pathname)
+        elif is_omero3d_path(self.__url):
+            scheme = 'omero-3d:'
+            url = self.__url.split(scheme)[1]
+            parsed_url = urllib.parse.urlparse(url)
+            query_params = urllib.parse.parse_qs(parsed_url.query)
+            zmin = int(query_params['zmin'][0])
+            zmax = int(query_params['zmax'][0])
+            width = int(query_params['width'][0])
+            height = int(query_params['height'][0])
+            image_id = query_params['imageid'][0]
+            channel = query_params['c'][0]
+            stack = numpy.ndarray((zmax - zmin + 1, height, width))
+            for i in range(zmin, zmax + 1):
+                path = urljoin('/tile', image_id, str(i), channel, '0')
+                url = urllib.parse.urlunparse((
+                    parsed_url.scheme,
+                    parsed_url.netloc,
+                    path,
+                    '',
+                    parsed_url.query,
+                    ''
+                ))
+                print("Requesting URL: {}".format(url))
+                timeout = 2
+                response = None
+                while timeout < 500:
+                    try:
+                        response = requests.get(url, timeout=timeout)
+                    except Exception:
+                        print('Get %s with timeout %s sec failed' % (
+                            url, timeout))
+                        timeout = timeout**2
+                    else:
+                        break
+                if response is None:
+                    raise Exception('Failed to retrieve data from URL')
+                image_bytes = BytesIO(response.content)
+                image = PilImage.open(image_bytes)
+                stack[i - zmin, :, :] = image
+            data = stack
         else:
             data = imageio.volread(pathname)
 
