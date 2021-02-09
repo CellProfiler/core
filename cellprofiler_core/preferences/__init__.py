@@ -1108,6 +1108,7 @@ def add_recent_file(filename, category=""):
 
 
 __plugin_directory = None
+__conserve_memory = None
 
 
 def get_plugin_directory():
@@ -1834,13 +1835,19 @@ def set_normalization_factor(normalization_factor):
 
 
 def get_conserve_memory():
+    global __conserve_memory
+    if __conserve_memory is not None:
+        return __conserve_memory in (True, "True")
     if not config_exists(CONSERVE_MEMORY):
         return False
     return get_config().ReadBool(CONSERVE_MEMORY)
 
 
-def set_conserve_memory(val):
-    get_config().WriteBool(CONSERVE_MEMORY, val)
+def set_conserve_memory(val, globally=True):
+    global __conserve_memory
+    __conserve_memory = val
+    if globally:
+        config_write(CONSERVE_MEMORY, val)
 
 
 def add_progress_callback(callback):
