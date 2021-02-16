@@ -1145,7 +1145,12 @@ class HDF5FileList(object):
             url = str(url)
         import urllib.parse, urllib.error
 
-        schema, rest = urllib.parse.splittype(str(url))
+        split = urllib.parse.urlsplit(str(url))
+        schema = split[0]
+        rest = url.split(schema)[1]
+        if rest[0]==':':
+            rest=rest[1:]
+            
         if schema is not None and schema.lower() == "omero":
             return schema, [rest]
         #
