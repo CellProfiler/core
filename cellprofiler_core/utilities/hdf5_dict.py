@@ -11,6 +11,7 @@ import os
 import sys
 import threading
 import time
+import urllib.parse
 import uuid
 
 import h5py
@@ -1143,17 +1144,11 @@ class HDF5FileList(object):
             url = url
         else:
             url = str(url)
-        import urllib.parse, urllib.error
 
         split = urllib.parse.urlsplit(str(url))
-        schema = split[0]
-        if schema == "":
-            schema = None
-        if schema is not None:
-            rest = url.split(schema)[1]
-            if rest[0]==':':
-                rest=rest[1:]
-        else:
+        schema = split.scheme
+        rest = split.path
+        if schema in (None, ""):
             rest = url
 
         if schema is not None and schema.lower() == "omero":
