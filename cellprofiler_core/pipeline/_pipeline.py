@@ -621,7 +621,6 @@ class Pipeline:
         indent - indent of the notes relative to module header.
         """
         lines = []
-        sanitization_dict = {"“":"\"","”":"\""}
         for module in self.modules(exclude_disabled=False):
             if module.enabled:
                 fmt = "[%4.d] [%s]"
@@ -630,7 +629,6 @@ class Pipeline:
             lines.append(fmt % (module.module_num, module.module_name))
             for note in module.notes:
                 lines.append("%s%s" % ("".join([" "] * indent), note))
-                note = ''.join(sanitization_dict.get(x,x) for x in note)
             lines.append("")
         fd.write("\n".join(lines))
 
