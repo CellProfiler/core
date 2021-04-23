@@ -85,6 +85,7 @@ class Measurement(Setting):
                 module.get_measurements(pipeline, object_name, category)
             )
         result = list(feature_names)
+        result = [feature if "Count_" not in feature else f"{feature.replace('Count_', '')}_Count" for feature in result ]
         result.sort()
         return result
 
