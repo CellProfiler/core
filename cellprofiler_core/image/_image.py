@@ -1,5 +1,6 @@
 import math
 import numpy
+import dask.array
 
 from ..utilities.image import crop_image
 
@@ -141,7 +142,8 @@ class Image:
         * int8/16/32/64: scale min to max to 0 to 1
         * logical: save as is (and get if must_be_binary)
         """
-        img = numpy.asanyarray(image)
+        img = dask.array.asarray(image)
+        #img = numpy.asanyarray(image)
         if img.dtype.name == "bool" or not convert:
             self.__image = img
             return
