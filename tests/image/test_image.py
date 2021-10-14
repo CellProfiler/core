@@ -14,7 +14,7 @@ class TestImage:
 
     def test_init_image_mask(self):
         x = cellprofiler_core.image.Image(
-            image=numpy.zeros((10, 10)), mask=numpy.ones((10, 10), dtype=numpy.bool)
+            image=numpy.zeros((10, 10)), mask=numpy.ones((10, 10), dtype=bool)
         )
 
     def test_set_image(self):
@@ -148,3 +148,14 @@ class TestImage:
         )
 
         assert x.spacing == (0.77 / 0.33, 1.0, 1.0)
+
+    def test_channelstack(self):
+        data = numpy.ones((5, 10, 10))
+
+        x = cellprofiler_core.image.Image(image=data)
+
+        assert x.channelstack == False
+
+        x.channelstack = True
+
+        assert x.channelstack == True

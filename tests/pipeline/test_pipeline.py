@@ -559,8 +559,12 @@ HasImagePlaneDetails:False"""
         pipeline_v5 = get_empty_pipeline()
         pipeline_v6 = get_empty_pipeline()
 
-        v5_pathname = "../../../CellProfiler/cellprofiler/data/examples/ExampleFly/ExampleFly.cppipe"
-        v6_pathname = "../data/pipeline/v6.json"
+        v5_pathname = os.path.realpath(
+            os.path.join(os.path.dirname(__file__), "../data/pipeline/v5_ExampleFly.cppipe")
+        )
+        v6_pathname = os.path.realpath(
+            os.path.join(os.path.dirname(__file__), "../data/pipeline/v6.json")
+        )
 
         pipeline_v5.load(v5_pathname)
         with open(v6_pathname, "r") as fd:
@@ -586,7 +590,10 @@ HasImagePlaneDetails:False"""
         fp.close()
 
         import json
-        with open("../data/pipeline/images.json", "r") as fd:
+        with open(os.path.realpath(
+            os.path.join(os.path.dirname(__file__), "../data/pipeline/images.json")
+            ), 
+            "r") as fd:
             pipeline_groundtruth = json.load(fd)
         with open(temp_file.name, "r") as fp:
             pipeline_v6 = json.load(fp)
@@ -599,11 +606,14 @@ HasImagePlaneDetails:False"""
                     assert setting_v6["name"] == setting_gt["name"]
                     assert setting_v6["text"] == setting_gt["text"]
             else:
-                assert pipeline_groundtruth[key] == pipeline_v6[key]
+                if key != "date_revision":
+                    assert pipeline_groundtruth[key] == pipeline_v6[key]
 
     def test_load_and_dump_json(self):
         pipeline = get_empty_pipeline()
-        pathname = "../../../CellProfiler/cellprofiler/data/examples/ExampleFly/ExampleFly.cppipe"
+        pathname = os.path.realpath(
+            os.path.join(os.path.dirname(__file__), "../data/pipeline/v5_ExampleFly.cppipe")
+        )
         pipeline.load(pathname)
 
         temp_file = tempfile.NamedTemporaryFile(mode="w+b", suffix=".json", delete=False)
