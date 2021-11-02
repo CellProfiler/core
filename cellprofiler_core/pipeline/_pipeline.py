@@ -1,5 +1,6 @@
 import bisect
 import datetime
+import gc
 import hashlib
 import importlib
 import io
@@ -80,9 +81,9 @@ from ..image import ImageSetList
 from ..measurement import Measurements
 from ..object import ObjectSet
 from ..preferences import get_headless
+from ..preferences import get_conserve_memory
 from ..preferences import report_progress
 from ..setting import Measurement
-from ..setting.subscriber import ImageSubscriber
 from ..setting.text import Name
 from ..utilities.measurement import load_measurements
 from ..workspace import Workspace
@@ -1070,7 +1071,8 @@ class Pipeline:
                         measurements.add_experiment_measurement(EXIT_STATUS, "Failure")
 
                         return
-
+                if get_conserve_memory():
+                    gc.collect()
             # Close cached readers.
             # This may play a big role with cluster deployments or long standing jobs
             # by freeing up memory and resources.
@@ -1213,6 +1215,10 @@ class Pipeline:
             measurements.flush()
             if workspace.disposition == DISPOSITION_SKIP:
                 break
+
+        if get_conserve_memory():
+            gc.collect()
+
         return Workspace(
             self, None, measurements, object_set, measurements, None, outlines=outlines
         )
@@ -1249,7 +1255,8 @@ class Pipeline:
         orig_image_number = m.image_set_number
 
         progress_dialog = self.create_progress_dialog(message, pipeline, title)
-
+        if progress_dialog is not None:
+            progress_dialog.SetRange(len(image_numbers))
         try:
             for i, image_number in enumerate(image_numbers):
                 m.image_set_number = image_number

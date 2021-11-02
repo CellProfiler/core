@@ -434,6 +434,26 @@ class HDF5Dict(object):
                 # if fetching more than 1/2 of indices
                 #
                 dataset = dataset[:]
+            if dataset.dtype == numpy.object:
+                # Strings come back out as bytes, we need to decode them.
+                try:
+                    return [
+                        None
+                        if (
+                            isinstance(dest, slice)
+                            and dest.start is not None
+                            and dest.start == dest.stop
+                        )
+                        else dataset[dest].astype(str)
+                        for dest in [
+                            indices.get(image_number, (slice(0, 0), 0))[0]
+                            for image_number in num_idx
+                        ]
+                    ]
+                except Exception as e:
+                    logging.error(
+                        "Unable to decode object measurement. You may find bytes in your output sheet."
+                    )
             return [
                 None
                 if (
@@ -854,28 +874,15 @@ class HDF5Dict(object):
 
             self.__cache_index(object_name, feature_name, idx)
             feature_group = self.top_group[object_name][feature_name]
-            if dataset.dtype.kind.upper() == "O":
-                dest = feature_group.create_dataset(
-                    "data",
-                    dtype=h5py.special_dtype(vlen=str),
-                    compression="gzip",
-                    shuffle=True,
-                    chunks=(self.chunksize,),
-                    shape=dataset.shape,
-                    maxshape=(None,),
-                )
-                for i, value in enumerate(dataset):
-                    dest[i] = value
-            else:
-                feature_group.create_dataset(
-                    "data",
-                    data=dataset,
-                    dtype=dtype,
-                    compression="gzip",
-                    shuffle=True,
-                    chunks=(self.chunksize,),
-                    maxshape=(None,),
-                )
+            feature_group.create_dataset(
+                "data",
+                data=dataset,
+                dtype=dtype,
+                compression="gzip",
+                shuffle=True,
+                chunks=(self.chunksize,),
+                maxshape=(None,),
+            )
             feature_group.create_dataset(
                 "index",
                 data=idx,
@@ -1145,7 +1152,17 @@ class HDF5FileList(object):
             url = str(url)
         import urllib.parse, urllib.error
 
-        schema, rest = urllib.parse.splittype(str(url))
+        split = urllib.parse.urlsplit(str(url))
+        schema = split[0]
+        if schema == "":
+            schema = None
+        if schema is not None:
+            rest = url.split(schema, 1)[1]
+            if rest[0] == ":":
+                rest = rest[1:]
+        else:
+            rest = url
+
         if schema is not None and schema.lower() == "omero":
             return schema, [rest]
         #

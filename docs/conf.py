@@ -1,6 +1,6 @@
 author = "Allen Goodman"
 
-copyright = "Copyright © 2003 - 2020 Broad Institute, Inc. All rights reserved."
+copyright = "Copyright © 2003 - 2021 Broad Institute, Inc. All rights reserved."
 
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
@@ -12,6 +12,6 @@ html_theme = "sphinx_rtd_theme"
 
 project = "CellProfiler-core"
 
-release = "4.0.7"
+release = "4.2.1"
 
 templates_path = ["_templates"]
