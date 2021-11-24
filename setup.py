@@ -35,6 +35,7 @@ setuptools.setup(
         "Pillow==8.1.0",
         "scikit-image==0.18.1",
         "scipy==1.4.1",
+        "zarr==2.10.2",
     ],
     license="BSD",
     name="cellprofiler-core",
