@@ -93,8 +93,8 @@ class FileImage(AbstractImage):
         self.__index = index
         self.__volume = volume
         self.__spacing = spacing
-        self.z_index = z
-        self.t_index = t
+        self.z_index = z if z is not None else 0
+        self.t_index = t if t is not None else 0
         self.scale = None
 
     @property
@@ -187,7 +187,7 @@ class FileImage(AbstractImage):
                 )
             finally:
                 os.close(tempfd)
-        elif url.endswith('.zarr'):
+        elif url.lower().endswith('.zarr'):
             self.__cached_file = url
         else:
             from bioformats.formatreader import get_image_reader
