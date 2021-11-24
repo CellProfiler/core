@@ -25,6 +25,7 @@ from ....utilities.image import load_data_file
 from ....utilities.image import generate_presigned_url
 from ....constants.image import FILE_SCHEME, PASSTHROUGH_SCHEMES
 from ....utilities.pathname import pathname2url, url2pathname
+from ....utilities.zarr import get_zarr_reader
 
 
 class FileImage(AbstractImage):
@@ -41,6 +42,8 @@ class FileImage(AbstractImage):
         channel=None,
         volume=False,
         spacing=None,
+        z=None,
+        t=None,
     ):
         """
         :param name: Name of image to be provided
@@ -90,6 +93,8 @@ class FileImage(AbstractImage):
         self.__index = index
         self.__volume = volume
         self.__spacing = spacing
+        self.z_index = z
+        self.t_index = t
         self.scale = None
 
     @property
@@ -182,6 +187,8 @@ class FileImage(AbstractImage):
                 )
             finally:
                 os.close(tempfd)
+        elif url.endswith('.zarr'):
+            self.__cached_file = url
         else:
             from bioformats.formatreader import get_image_reader
 
@@ -216,6 +223,8 @@ class FileImage(AbstractImage):
                 is_numpy_file(self.__filename) or
                 is_omero3d_path(self.get_url())):
             rdr = None
+        elif self.get_url().endswith('.zarr'):
+            rdr = get_zarr_reader(None, url=self.get_url())
         else:
             from bioformats.formatreader import get_image_reader
 
@@ -284,6 +293,8 @@ class FileImage(AbstractImage):
             url = self.get_url()
             if url.lower().startswith("omero:"):
                 rdr = get_image_reader(self.get_name(), url=url)
+            elif url.lower().endswith('.zarr'):
+                rdr = get_zarr_reader(self.get_name(), path=os.path.join(self.get_pathname(), self.get_filename()), url=url)
             else:
                 rdr = get_image_reader(self.get_name(), url=self.get_url())
             if numpy.isscalar(self.index) or self.index is None:
@@ -294,6 +305,8 @@ class FileImage(AbstractImage):
                     rescale=self.rescale,
                     wants_max_intensity=True,
                     channel_names=channel_names,
+                    z=self.z_index,
+                    t=self.t_index,
                 )
             else:
                 # It's a stack
@@ -316,6 +329,8 @@ class FileImage(AbstractImage):
                         rescale=self.rescale,
                         wants_max_intensity=True,
                         channel_names=channel_names,
+                        z=self.z_index,
+                        t=self.t_index,
                     )
                     stack.append(img)
                 img = numpy.dstack(stack)
@@ -384,6 +399,20 @@ class FileImage(AbstractImage):
                 image = PilImage.open(image_bytes)
                 stack[i - zmin, :, :] = image
             data = stack
+        elif pathname.endswith('.zarr'):
+            rdr = get_zarr_reader(self.get_name(),
+                                  path=os.path.join(self.get_pathname(),
+                                                    self.get_filename()),
+                                  url=self.get_url())
+            data = rdr.read(
+                c=self.channel,
+                series=self.series,
+                index=None,
+                rescale=False,
+                wants_max_intensity=False,
+                z=None,
+                t=self.t_index,
+            )
         else:
             data = imageio.volread(pathname)
 
