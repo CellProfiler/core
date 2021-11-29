@@ -1983,11 +1983,16 @@ requests an object selection.
                 )
         # CZT needed for zarr reading. Provision of index parameter will make bioformats readers ignore these.
         if workspace.measurements.has_feature("Image", "Metadata_Z"):
-            z = int(workspace.measurements.get_measurement("Image", "Metadata_Z"))
+            z = workspace.measurements.get_measurement("Image", "Metadata_Z")
+            if z is not None:
+                z = int(z)
         else:
             z = None
         if workspace.measurements.has_feature("Image", "Metadata_T"):
-            t = int(workspace.measurements.get_measurement("Image", "Metadata_T"))
+            t = workspace.measurements.get_measurement("Image", "Metadata_T")
+            if t is not None:
+                t = int(t)
+
         else:
             t = None
         if len(ipds) == 1:
@@ -2004,7 +2009,9 @@ requests an object selection.
             channel = ipd.channel
             if url.lower().endswith('.zarr') and workspace.measurements.has_feature("Image", "Metadata_C"):
                 # Override channel index with real value if using zarrs
-                channel = int(workspace.measurements.get_measurement("Image", "Metadata_C"))
+                channel = workspace.measurements.get_measurement("Image", "Metadata_C")
+                if channel is not None:
+                    channel = int(channel)
             if channel == monochrome:
                 channel = None
             elif channel == interleaved:
