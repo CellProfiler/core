@@ -2009,9 +2009,9 @@ requests an object selection.
             channel = ipd.channel
             if url.lower().endswith('.zarr') and workspace.measurements.has_feature("Image", "Metadata_C"):
                 # Override channel index with real value if using zarrs
-                channel = workspace.measurements.get_measurement("Image", "Metadata_C")
-                if channel is not None:
-                    channel = int(channel)
+                channelM = workspace.measurements.get_measurement("Image", "Metadata_C")
+                if channelM is not None:
+                    channel = int(channelM)
             if channel == monochrome:
                 channel = None
             elif channel == interleaved:
