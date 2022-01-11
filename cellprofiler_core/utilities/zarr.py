@@ -73,7 +73,7 @@ def make_ome_xml(url):
 
 
 def get_zarr_reader(key, path=None, url=None):
-    logger.info("Getting image reader for: %s, %s, %s" % (key, path, url))
+    logger.debug("Getting image reader for: %s, %s, %s" % (key, path, url))
     from bioformats.formatreader import __image_reader_key_cache, __image_reader_cache, release_image_reader
     if key in __image_reader_key_cache:
         old_path, old_url = __image_reader_key_cache[key]
@@ -116,13 +116,20 @@ class ZarrReader(object):
             if sys.platform.startswith("win"):
                 self.path = self.path.replace("/", os.path.sep)
             filename = os.path.split(path)[1]
-
+        store = zarr.storage.FSStore(path)
         if path.startswith('s3'):
             logger.info("Zarr is stored on S3, will try to read directly.")
+            if '.zmetadata' in store:
+                # Zarr has consolidated metadata.
+                self.reader = zarr.convenience.open_consolidated(store, mode='r')
+            else:
+                logging.warning(f"Image is on S3 but lacks consolidated metadata. "
+                                f"This may degrade reading performance. URL: {path}")
+                self.reader = zarr.open(store, mode='r')
         elif not os.path.isdir(self.path):
             raise IOError("The file, \"%s\", does not exist." % path)
-        store = zarr.storage.FSStore(path)
-        self.reader = zarr.open(store, mode='r')
+        else:
+            self.reader = zarr.open(store, mode='r')
         self.well_map = self.map_wells()
         self.series_list = self.map_series()
 
@@ -141,9 +148,18 @@ class ZarrReader(object):
         :param channel_names: provide the channel names for the OME metadata
         :param XYWH: a (x, y, w, h) tuple"""
         # Index should always be None, we need ctz to properly index zarrs.
+        logger.debug(f"Reading {c=}, {z=}, {t=}, {series=}, {index=}, {XYWH=}")
         c2 = None if c is None else c + 1
         z2 = None if z is None else z + 1
         t2 = None if t is None else t + 1
+        if XYWH is not None:
+            x, y, w, h = XYWH
+            x = round(x)
+            y = round(y)
+            x2 = x + w
+            y2 = y + h
+        else:
+            y, y2, x, x2 = None, None, None, None
         if self.well_map:
             series_col, series_row, series_field = self.series_list[series]
             base_path = self.well_map[(series_col, series_row)]
@@ -155,9 +171,9 @@ class ZarrReader(object):
             seriesreader = self.reader[self.series_list[series]][0]
         # Zarr arrays are indexed as TCZYX
         if len(seriesreader.shape) == 5:
-            image = seriesreader[t:t2, c:c2, z:z2, :, :]
+            image = seriesreader[t:t2, c:c2, z:z2, y:y2, x:x2]
         else:
-            image = seriesreader[c:c2, z:z2, :, :]
+            image = seriesreader[c:c2, z:z2, y:y2, x:x2]
         # Remove redundant axes
         image = numpy.squeeze(image)
         # C needs to be the last axis, but z should be first. Thank you CellProfiler.

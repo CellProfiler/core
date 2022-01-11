@@ -294,7 +294,7 @@ class FileImage(AbstractImage):
             if url.lower().startswith("omero:"):
                 rdr = get_image_reader(self.get_name(), url=url)
             elif url.lower().endswith('.zarr'):
-                rdr = get_zarr_reader(self.get_name(), path=os.path.join(self.get_pathname(), self.get_filename()), url=url)
+                rdr = get_zarr_reader(self.get_name(), url=url)
             else:
                 rdr = get_image_reader(self.get_name(), url=self.get_url())
             if numpy.isscalar(self.index) or self.index is None:
@@ -400,10 +400,7 @@ class FileImage(AbstractImage):
                 stack[i - zmin, :, :] = image
             data = stack
         elif pathname.endswith('.zarr'):
-            rdr = get_zarr_reader(self.get_name(),
-                                  path=os.path.join(self.get_pathname(),
-                                                    self.get_filename()),
-                                  url=self.get_url())
+            rdr = get_zarr_reader(self.get_name(), url=self.get_url())
             data = rdr.read(
                 c=self.channel,
                 series=self.series,
