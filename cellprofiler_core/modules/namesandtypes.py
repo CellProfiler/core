@@ -2012,6 +2012,9 @@ requests an object selection.
                 channelM = workspace.measurements.get_measurement("Image", "Metadata_C")
                 if channelM is not None:
                     channel = int(channelM)
+                else:
+                    # Todo: Solve channel ID if mixed channel pipeline
+                    channel = index
             if channel == monochrome:
                 channel = None
             elif channel == interleaved:
