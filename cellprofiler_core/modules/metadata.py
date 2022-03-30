@@ -1130,6 +1130,7 @@ not being applied, your choice on this setting may be the culprit.
 
         import wx
         from bioformats.formatreader import get_omexml_metadata
+        from cellprofiler_core.utilities.zarr import get_zarr_metadata
 
         with wx.ProgressDialog(
             "Extracting metadata",
@@ -1159,7 +1160,10 @@ not being applied, your choice on this setting may be the culprit.
                             continue
                     metadata = filelist.get_metadata(url)
                     if metadata is None:
-                        metadata = get_omexml_metadata(url=url)
+                        if url.lower().endswith('.zarr'):
+                            metadata = get_zarr_metadata(url=url)
+                        else:
+                            metadata = get_omexml_metadata(url=url)
                         filelist.add_metadata(url, metadata)
                 except:
                     print("Metadata extraction failed for %s" % url)
