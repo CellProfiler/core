@@ -103,7 +103,7 @@ class ZarrReader(object):
         if url is not None:
             url = str(url)
             if url.lower().startswith(file_scheme):
-                url = url2pathname(url[len(file_scheme):])
+                url = url2pathname(url)
                 path = url
             elif path is None:
                 path = url
