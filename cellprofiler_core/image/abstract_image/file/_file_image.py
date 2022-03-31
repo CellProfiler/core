@@ -198,7 +198,6 @@ class FileImage(AbstractImage):
         return True
 
     def get_full_name(self):
-        print("Getting full name {}:{}".format(self.__url, self.get_url()))
         if is_omero3d_path(self.__url):
             return self.get_url()
         self.cache_file()
