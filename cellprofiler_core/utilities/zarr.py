@@ -103,7 +103,7 @@ class ZarrReader(object):
         if url is not None:
             url = str(url)
             if url.lower().startswith(file_scheme):
-                url = url2pathname(url[len(file_scheme):])
+                url = url2pathname(url)
                 path = url
             elif path is None:
                 path = url
@@ -111,12 +111,12 @@ class ZarrReader(object):
         self.path = path
         if path is None:
             if not url.lower().startswith('s3:'):
-                filenamme = self.download(url)
+                self.path = self.download(url)
         else:
             if sys.platform.startswith("win"):
                 self.path = self.path.replace("/", os.path.sep)
             filename = os.path.split(path)[1]
-        store = zarr.storage.FSStore(path)
+        store = zarr.storage.FSStore(self.path)
         if path.startswith('s3'):
             logger.info("Zarr is stored on S3, will try to read directly.")
             if '.zmetadata' in store:
