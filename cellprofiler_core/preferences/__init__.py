@@ -82,7 +82,11 @@ def get_config():
     try:
         config = wx.Config.Get(False)
     except wx.PyNoAppError:
-        app = wx.App(0)
+        try:
+            app = wx.App(0)
+        except SystemExit:
+            print("Running a build, no app available")
+            return __headless_config
         config = wx.Config.Get(False)
     if not config:
         wx.Config.Set(
