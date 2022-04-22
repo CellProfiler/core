@@ -85,7 +85,8 @@ def get_config():
         try:
             app = wx.App(0)
         except SystemExit:
-            print("Running a build, no app available")
+            # We're probably building on GitHub Actions
+            print("Python version doesn't support GUI, no app available.")
             return __headless_config
         config = wx.Config.Get(False)
     if not config:
