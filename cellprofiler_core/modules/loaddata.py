@@ -1063,15 +1063,15 @@ safe to press it.""",
             # Zarrs need czt indexing rather than just index.
             c, z, t = None, None, None
 
-            if measurements.has_feature(f"Channel_{name}"):
+            if measurements.has_feature("Image", f"Channel_{name}"):
                 c = measurements["Image", f"Channel_{name}"]
             elif measurements.has_feature("Image", "Metadata_C"):
                 c = measurements["Image", "Metadata_C"]
-            if measurements.has_feature(f"Z_{name}"):
+            if measurements.has_feature("Image", f"Z_{name}"):
                 z = measurements["Image", f"Z_{name}"]
             elif measurements.has_feature("Image", "Metadata_Z"):
                 z = measurements["Image", "Metadata_Z"]
-            if measurements.has_feature(f"T_{name}"):
+            if measurements.has_feature("Image", f"T_{name}"):
                 t = measurements["Image", f"T_{name}"]
             elif measurements.has_feature("Image", "Metadata_T"):
                 t = measurements["Image", "Metadata_T"]
