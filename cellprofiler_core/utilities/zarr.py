@@ -21,7 +21,7 @@ def get_zarr_metadata(url):
     xmlfile = 'METADATA.ome.xml'
     parser = urllib.parse.urlparse(url)
     if parser.scheme == 'file':
-        url = parser.path
+        url = url2pathname(url)
     elif parser.scheme == 's3':
         client = boto3.client('s3')
         bucket_name, key = re.compile('s3://([\w\d\-\.]+)/(.*)').search(
