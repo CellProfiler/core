@@ -1,4 +1,5 @@
 import logging
+import json
 import os
 import re
 import shutil
@@ -12,6 +13,7 @@ import numpy
 import pkg_resources
 import scipy.io
 
+from google.cloud import storage
 from .measurement import is_well_row_token
 from .measurement import is_well_column_token
 from ..constants.image import ALL_IMAGE_EXTENSIONS
@@ -287,6 +289,7 @@ def download_to_temp_file(url):
     global CP_TEMP_DIR
     parsed = urlparse(url)
     scheme = parsed.scheme
+    netloc = parsed.netloc
     path = parsed.path
     queries = parse_qs(parsed.query)
     if 'name' in queries:
@@ -301,16 +304,32 @@ def download_to_temp_file(url):
             Params={'Bucket': bucket_name, 'Key': key.replace("+", " ")}
         )
 
-    from urllib.request import urlopen
-    logging.info(f"Downloading image from {url}")
-    src = urlopen(url)
-    dest_file = tempfile.NamedTemporaryFile(suffix=ext, delete=False, dir=CP_TEMP_DIR.name)
-    try:
-        shutil.copyfileobj(src, dest_file)
-    except Exception as e:
-        logging.error(f"Unable to download image to temp file. {e}")
-        return None
-    finally:
-        dest_file.close()
-    return dest_file.name
+    elif scheme == 'gs':
+            # Get default Google Cloud Storage project ID from environment.
+            if 'GOOGLE_APPLICATION_CREDENTIALS' in os.environ:
+                with open(os.environ['GOOGLE_APPLICATION_CREDENTIALS'], 'r') as fp:
+                    # Get default project ID from Google Cloud Storage application default credential.
+                    credentials = json.load(fp)
+                    project_id = credentials['project_id']
+                    # Create client to access
+                    client = storage.Client(project_id)
+                    # Get bucket object from URL.
+                    bucket = client.get_bucket(netloc)
+                    # Create a blob object from the given filepath.
+                    urlpath = urlpath.replace("/", "", 1)
+                    blob = bucket.blob("{}".format(urlpath))
+                    blob.download_to_filename("{}/{}".format(os.getcwd(), path))
+                    return path
+    else:
+        from urllib.request import urlopen
+        src = urlopen(url)
+        dest_file = tempfile.NamedTemporaryFile(suffix=ext, delete=False, dir=CP_TEMP_DIR.name)
+        try:
+            shutil.copyfileobj(src, dest_file)
+        except Exception as e:
+            logging.error(f"Unable to download image to temp file. {e}")
+            return None
+        finally:
+            dest_file.close()
+        return dest_file.name
 
