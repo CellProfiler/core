@@ -8,7 +8,7 @@ from ..reader import Reader
 
 import imageio
 
-SUPPORTED_EXTENSIONS = {'.png', '.bmp', '.jpeg', '.jpg', '.gif'}
+SUPPORTED_EXTENSIONS = {'.png', '.bmp', '.jpeg', '.jpg', '.gif','.tiff'}
 
 
 class ImageIOReader(Reader):
