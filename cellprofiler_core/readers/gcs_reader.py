@@ -69,9 +69,9 @@ class GcsReader(ImageIOReader):
       # Create client to access Google Cloud Storage.
       client = storage.Client()
       # Get bucket name, file path from URL.
-      bucket_name, file_path = self.decode_gcs_url(url)
+      bucket_id, file_path = self.decode_gcs_url(url)
       # Get bucket.
-      bucket = client.bucket(bucket_name)
+      bucket = client.bucket(bucket_id)
       # Download blob object to local file path.
       blob = bucket.blob(file_path)
       local_file_path = os.path.basename(file_path)

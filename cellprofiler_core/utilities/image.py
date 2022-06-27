@@ -1,26 +1,24 @@
-import logging
 import json
+import logging
 import os
 import re
 import shutil
 import sys
 import tempfile
 import urllib.request
-from urllib.parse import urlparse, unquote, parse_qs
+from urllib.parse import parse_qs, unquote, urlparse
+from urllib.request import urlopen
 
 import boto3
 import numpy
 import pkg_resources
 import scipy.io
-
 from google.cloud import storage
-from .measurement import is_well_row_token
-from .measurement import is_well_column_token
-from ..constants.image import ALL_IMAGE_EXTENSIONS
-from ..constants.image import SUPPORTED_MOVIE_EXTENSIONS
-from ..constants.image import PASSTHROUGH_SCHEMES
-from ..constants.image import FILE_SCHEME
+
+from ..constants.image import (ALL_IMAGE_EXTENSIONS, FILE_SCHEME,
+                               PASSTHROUGH_SCHEMES, SUPPORTED_MOVIE_EXTENSIONS)
 from ..constants.measurement import FTR_WELL
+from .measurement import is_well_column_token, is_well_row_token
 
 """
 This temporary directory will store cached files downloaded from the web.
@@ -296,15 +294,8 @@ def download_to_temp_file(url):
         path = queries['name'][0]
     ext = os.path.splitext(path)[-1]
 
-    if scheme == 's3':
-        client = boto3.client('s3')
-        bucket_name, key = re.compile('s3://([\w\d\-\.]+)/(.*)').search(url).groups()
-        url = client.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': bucket_name, 'Key': key.replace("+", " ")}
-        )
-
-    elif scheme == 'gs':
+    # Handle Google Cloud Storage URLs.
+    if scheme == 'gs':
         # Create client to access Google Cloud Storage.
         client = storage.Client()
         # Get bucket from bucket name parsed from URL.
@@ -323,7 +314,16 @@ def download_to_temp_file(url):
             dest_file.close()
             return dest_file.name
     else:
-        from urllib.request import urlopen
+        # Handle Amazon Web Services URLs.
+        if scheme == 's3':
+            client = boto3.client('s3')
+            bucket_name, key = re.compile('s3://([\w\d\-\.]+)/(.*)').search(url).groups()
+            # Get pre-signed URL.
+            url = client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': bucket_name, 'Key': key.replace("+", " ")}
+            )
+        # Download object from URL.
         src = urlopen(url)
         dest_file = tempfile.NamedTemporaryFile(suffix=ext, delete=False, dir=CP_TEMP_DIR.name)
         try:

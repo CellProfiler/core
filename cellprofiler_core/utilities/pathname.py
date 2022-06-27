@@ -34,5 +34,3 @@ def url2pathname(url):
                 return reader.download_blob(url)
         else:
             return url
-    if is_file_url(url):
-        return urllib.request.url2pathname(url[len(FILE_SCHEME):])
