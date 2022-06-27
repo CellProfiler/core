@@ -318,8 +318,17 @@ def download_to_temp_file(url):
                     # Create a blob object from the given filepath.
                     urlpath = urlpath.replace("/", "", 1)
                     blob = bucket.blob("{}".format(urlpath))
-                    blob.download_to_filename("{}/{}".format(os.getcwd(), path))
-                    return path
+                    # blob.download_to_filename("{}/{}".format(os.getcwd(), path))
+                    # return path
+                    dest_file = tempfile.NamedTemporaryFile(suffix=ext, delete=False, dir=CP_TEMP_DIR.name)
+                    try:
+                        blob.download_to_filename(dest_file)
+                    except Exception as e:
+                        logging.error(f"Unable to download Google Cloud Storage image to temp file. {e}")
+                        return None
+                    finally:
+                        dest_file.close()
+                        return dest_file.name
     else:
         from urllib.request import urlopen
         src = urlopen(url)

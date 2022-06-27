@@ -25,6 +25,7 @@ setuptools.setup(
         "centrosome==1.2.0",
         "docutils==0.15.2",
         "h5py==3.2.1",
+        "imagecodecs",
         "matplotlib>=3.1.3",
         "numpy>=1.18.2",
         "prokaryote==2.4.4",
@@ -40,7 +41,7 @@ setuptools.setup(
     package_data={"cellprofiler_core": ["py.typed"]},
     packages=setuptools.find_packages(exclude=["tests"]),
     python_requires=">=3.8",
-    url="https://github.com/CellProfiler/core",
-    version="4.2.1",
+    url="https://github.com/emmarogge/core",
+    version="5.0.0",
     zip_safe=False,
 )
