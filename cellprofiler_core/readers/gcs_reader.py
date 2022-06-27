@@ -16,9 +16,7 @@ class GcsReader(ImageIOReader):
   Leverages ImageIOReader image processing methods.
 
   Prerequisites:
-  1. User has authenticated with Google Cloud Storage Application Default Credential (ADC) by running command, `gcloud auth application-default login`.
-  2. User has validated that the Google Cloud Storage project to which the LoadData module URLs point is
-  the current [default] project by running `gcloud config list`.
+  User has authenticated with Google Cloud Storage Application Default Credential (ADC) by running command, `gcloud auth application-default login`,  or is running CellProfiler in an environment where this credential has already been configured for them such as app.terra.bio or CloudShell.
   """
 
   reader_name = "GcsReader"
@@ -68,13 +66,13 @@ class GcsReader(ImageIOReader):
 
   def download_blob(self, url):
     if url:
-      # Get default Google Cloud Storage project ID from environment.
-      storage_client = storage.Client()
+      # Create client to access Google Cloud Storage.
+      client = storage.Client()
       # Get bucket name, file path from URL.
       bucket_name, file_path = self.decode_gcs_url(url)
-      # Get bucket
-      bucket = storage_client.bucket(bucket_name)
-      # Create a blob object from the filepath
+      # Get bucket.
+      bucket = client.bucket(bucket_name)
+      # Download blob object to local file path.
       blob = bucket.blob(file_path)
       local_file_path = os.path.basename(file_path)
       blob.download_to_filename(local_file_path)
