@@ -26,7 +26,7 @@ setuptools.setup(
         "docutils==0.15.2",
         "h5py~=3.6.0",
         "matplotlib>=3.1.3",
-        "numpy>=1.18.2",
+        "numpy>=1.18.2,<1.23",
         "prokaryote==2.4.4",
         "psutil>=5.7.0",
         "python-bioformats==4.0.5",
