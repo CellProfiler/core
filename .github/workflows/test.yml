@@ -16,7 +16,7 @@ jobs:
         |
         python -m pip install --upgrade pip
         pip install numpy
-        pip install wxPython==4.1.0
+        pip install wheel
         pip install -e .[test]
     - name: Test
       run: pytest
