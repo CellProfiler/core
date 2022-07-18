@@ -21,4 +21,4 @@ jobs:
     - name: Test
       run: pytest
 name: cellprofiler-core
-on: [push]
+on: [push, workflow_dispatch]
