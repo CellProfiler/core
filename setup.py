@@ -31,7 +31,7 @@ setuptools.setup(
         "psutil>=5.7.0",
         "python-bioformats==4.0.5",
         "python-javabridge==4.0.3",
-        "pyzmq~=22.3",
+        "pyzmq==18.0.1",
         "scikit-image>=0.16.2",
         "scipy>=1.4.1",
     ],
