@@ -15,7 +15,7 @@ jobs:
       run:
         |
         sudo apt update
-        sudo apt -y upgrad
+        sudo apt -y upgrade
         sudo apt install -y make gcc build-essential libgtk-3-dev
         sudo apt-get install -y python3-pip openjdk-11-jdk-headless default-libmysqlclient-dev libnotify-dev libsdl2-dev
         export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
