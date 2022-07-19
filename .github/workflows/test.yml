@@ -11,16 +11,30 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Get pip cache dir
+      id: pip-cache-dir
+      run: |
+        echo "::set-output name=dir::$(pip cache dir)"
+    - name: Cache pip
+      uses: actions/cache@v3
+      id: cache-pip
+      if: startsWith(runner.os, 'Linux')
+      with:
+        path: ${{ steps.pip-cache-dir.outputs.dir }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
     - name: Installation
+      if: steps.cache-pip.outputs.cache-hit != 'true'
       run:
         |
-        sudo apt update
-        sudo apt -y upgrade
+        # sudo apt update
+        # sudo apt -y upgrade
         sudo apt install -y make gcc build-essential libgtk-3-dev
-        sudo apt-get install -y python3-pip openjdk-11-jdk-headless default-libmysqlclient-dev libnotify-dev libsdl2-dev
+        sudo apt-get install -y openjdk-11-jdk-headless default-libmysqlclient-dev libnotify-dev libsdl2-dev
         export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
         export PATH=$PATH:/home/ubuntu/.local/bin
-        python -m pip install --upgrade pip
+        # python -m pip install --upgrade pip
         pip install numpy
         pip install wheel
         pip install -e .[test]
