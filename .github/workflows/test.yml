@@ -37,7 +37,6 @@ jobs:
         pip install numpy
         pip install wheel
         pip install -e .[test]
-        echo pip list -v
     - name: Test
       run: pytest
 name: cellprofiler-core
