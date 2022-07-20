@@ -37,7 +37,5 @@ jobs:
         git clone https://github.com/CellProfiler/CellProfiler.git ~/cellprofiler
         pip install -e .[test]
         pip install -e ~/cellprofiler
-    - name: Test
-      run: pytest
 name: cellprofiler-core
 on: [push, workflow_dispatch]
