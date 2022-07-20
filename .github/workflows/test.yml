@@ -34,7 +34,7 @@ jobs:
         # python -m pip install --upgrade pip
         pip install numpy
         pip install wheel
-        git clone git@github.com:CellProfiler/CellProfiler.git ~/cellprofiler
+        git clone https://github.com/CellProfiler/CellProfiler.git ~/cellprofiler
         pip install -e ~/cellprofiler
         pip install -e .[test]
     - name: Test
