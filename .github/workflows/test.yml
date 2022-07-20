@@ -37,5 +37,7 @@ jobs:
         git clone https://github.com/CellProfiler/CellProfiler.git ~/cellprofiler
         pip install -e .[test]
         pip install -e ~/cellprofiler
+    - name: Test
+      run: pytest -k 'not test_load_objects and not test_load_single_object'
 name: cellprofiler-core
 on: [push, workflow_dispatch]
