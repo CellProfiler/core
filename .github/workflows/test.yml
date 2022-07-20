@@ -25,7 +25,6 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-pip-
     - name: Installation
-      if: steps.cache-pip.outputs.cache-hit != 'true'
       run:
         |
         # sudo apt update
@@ -38,6 +37,7 @@ jobs:
         pip install numpy
         pip install wheel
         pip install -e .[test]
+        echo pip list -v
     - name: Test
       run: pytest
 name: cellprofiler-core
