@@ -27,7 +27,6 @@ jobs:
       - name: Cache pip
         uses: actions/cache@v3
         id: cache-pip
-        if: startsWith(runner.os, 'Linux')
         with:
           path: ${{ steps.pip-cache-dir.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
