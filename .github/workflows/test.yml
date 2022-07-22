@@ -29,7 +29,7 @@ jobs:
         id: cache-pip
         with:
           path: ${{ steps.pip-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('**/setup.py') }}
       - name: Install java
         uses: actions/setup-java@v1
         with:
