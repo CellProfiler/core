@@ -8,6 +8,7 @@ import threading
 import traceback
 import unittest
 import uuid
+from importlib.util import find_spec
 import cellprofiler_core.analysis
 import cellprofiler_core.analysis.reply as anareply
 import cellprofiler_core.constants.measurement
@@ -38,7 +39,11 @@ class TestAnalysisWorker(unittest.TestCase):
         # Install a bogus display_post_group method in FlipAndRotate
         # to elicit a post-group interaction request
         #
-        from cellprofiler.modules.flipandrotate import FlipAndRotate
+        try:
+            from cellprofiler.modules.flipandrotate import FlipAndRotate
+        except:
+            from .flipandrotate import FlipAndRotate
+            cellprofiler_core.utilities.core.modules.add_module_for_tst(FlipAndRotate)
 
         def bogus_display_post_group(self, workspace, figure):
             pass
@@ -381,7 +386,7 @@ class TestAnalysisWorker(unittest.TestCase):
         )
         self.assertIn(self.analysis_id, self.awthread.aw.pipelines_and_preferences)
         pipe, prefs = self.awthread.aw.pipelines_and_preferences[self.analysis_id]
-        self.assertEqual(len(pipe.modules()), 7)
+        self.assertEqual(len(pipe.modules()), NUM_MODULES)
         #
         # Cancel and check for exit
         #
@@ -523,7 +528,7 @@ class TestAnalysisWorker(unittest.TestCase):
         req = self.awthread.recv(self.work_socket)
         self.assertIsInstance(req, anarequest.SharedDictionary)
         rep = anareply.SharedDictionary(
-            dictionaries=[{("foo%d" % i): "bar%d" % i} for i in range(1, 8)]
+            dictionaries=[{("foo%d" % i): "bar%d" % i} for i in range(1, 1+NUM_MODULES)]
         )
         req.reply(rep)
         #
@@ -593,7 +598,7 @@ class TestAnalysisWorker(unittest.TestCase):
         #
         req = self.awthread.recv(self.work_socket)
         self.assertIsInstance(req, anarequest.SharedDictionary)
-        shared_dictionaries = [{("foo%d" % i): "bar%d" % i} for i in range(1, 8)]
+        shared_dictionaries = [{("foo%d" % i): "bar%d" % i} for i in range(1, NUM_MODULES+1)]
         rep = anareply.SharedDictionary(dictionaries=shared_dictionaries)
         req.reply(rep)
         #
@@ -632,18 +637,19 @@ class TestAnalysisWorker(unittest.TestCase):
         #
         # Spot check for some expected stuff
         #
-        self.assertTrue(
-            m.has_feature(
-                cellprofiler_core.constants.measurement.IMAGE,
-                cellprofiler_core.constants.measurement.C_COUNT + "_Nuclei",
+        if _cp_installed:
+            self.assertTrue(
+                m.has_feature(
+                    cellprofiler_core.constants.measurement.IMAGE,
+                    cellprofiler_core.constants.measurement.C_COUNT + "_Nuclei",
+                )
             )
-        )
-        self.assertTrue(
-            m.has_feature(
-                "Nuclei", cellprofiler_core.constants.measurement.M_LOCATION_CENTER_X
+            self.assertTrue(
+                m.has_feature(
+                    "Nuclei", cellprofiler_core.constants.measurement.M_LOCATION_CENTER_X
+                )
             )
-        )
-        self.assertTrue(m.has_feature("Nuclei", "AreaShape_Area"))
+            self.assertTrue(m.has_feature("Nuclei", "AreaShape_Area"))
         req.reply(anareply.Ack())
         self.awthread.ecute()
 
@@ -731,18 +737,19 @@ class TestAnalysisWorker(unittest.TestCase):
         #
         # Spot check for some expected stuff
         #
-        self.assertTrue(
-            m.has_feature(
-                cellprofiler_core.constants.measurement.IMAGE,
-                cellprofiler_core.constants.measurement.C_COUNT + "_Nuclei",
+        if _cp_installed:
+            self.assertTrue(
+                m.has_feature(
+                    cellprofiler_core.constants.measurement.IMAGE,
+                    cellprofiler_core.constants.measurement.C_COUNT + "_Nuclei",
+                )
             )
-        )
-        self.assertTrue(
-            m.has_feature(
-                "Nuclei", cellprofiler_core.constants.measurement.M_LOCATION_CENTER_X
+            self.assertTrue(
+                m.has_feature(
+                    "Nuclei", cellprofiler_core.constants.measurement.M_LOCATION_CENTER_X
+                )
             )
-        )
-        self.assertTrue(m.has_feature("Nuclei", "AreaShape_Area"))
+            self.assertTrue(m.has_feature("Nuclei", "AreaShape_Area"))
         req.reply(anareply.Ack())
         self.awthread.ecute()
 
@@ -804,7 +811,7 @@ class TestAnalysisWorker(unittest.TestCase):
         #
         req = self.awthread.recv(self.work_socket)
         self.assertIsInstance(req, anarequest.SharedDictionary)
-        shared_dictionaries = [{("foo%d" % i): "bar%d" % i} for i in range(1, 8)]
+        shared_dictionaries = [{("foo%d" % i): "bar%d" % i} for i in range(1, NUM_MODULES+1)]
         rep = anareply.SharedDictionary(dictionaries=shared_dictionaries)
         req.reply(rep)
         #
@@ -840,36 +847,37 @@ class TestAnalysisWorker(unittest.TestCase):
         #
         # Spot check for some expected stuff
         #
-        self.assertTrue(
-            m.has_feature(
+        if _cp_installed:
+            self.assertTrue(
+                m.has_feature(
+                    cellprofiler_core.constants.measurement.IMAGE,
+                    cellprofiler_core.constants.measurement.C_COUNT + "_Nuclei",
+                )
+            )
+            self.assertTrue(
+                m.has_feature(
+                    "Nuclei", cellprofiler_core.constants.measurement.M_LOCATION_CENTER_X
+                )
+            )
+            self.assertTrue(m.has_feature("Nuclei", "AreaShape_Area"))
+            #
+            # The count for the skipped image should be None
+            #
+            count = m[
                 cellprofiler_core.constants.measurement.IMAGE,
                 cellprofiler_core.constants.measurement.C_COUNT + "_Nuclei",
-            )
-        )
-        self.assertTrue(
-            m.has_feature(
-                "Nuclei", cellprofiler_core.constants.measurement.M_LOCATION_CENTER_X
-            )
-        )
-        self.assertTrue(m.has_feature("Nuclei", "AreaShape_Area"))
-        #
-        # The count for the skipped image should be None
-        #
-        count = m[
-            cellprofiler_core.constants.measurement.IMAGE,
-            cellprofiler_core.constants.measurement.C_COUNT + "_Nuclei",
-            2,
-        ]
-        self.assertIsNone(count)
-        count = m[
-            cellprofiler_core.constants.measurement.IMAGE,
-            cellprofiler_core.constants.measurement.C_COUNT + "_Nuclei",
-            3,
-        ]
-        center_x = m[
-            "Nuclei", cellprofiler_core.constants.measurement.M_LOCATION_CENTER_X, 3
-        ]
-        self.assertEqual(count, len(center_x))
+                2,
+            ]
+            self.assertIsNone(count)
+            count = m[
+                cellprofiler_core.constants.measurement.IMAGE,
+                cellprofiler_core.constants.measurement.C_COUNT + "_Nuclei",
+                3,
+            ]
+            center_x = m[
+                "Nuclei", cellprofiler_core.constants.measurement.M_LOCATION_CENTER_X, 3
+            ]
+            self.assertEqual(count, len(center_x))
         req.reply(anareply.Ack())
         self.awthread.ecute()
 
@@ -1008,8 +1016,76 @@ class TestAnalysisWorker(unittest.TestCase):
     #             self.assertFalse(isinstance(req, cellprofiler_core.analysis.ExceptionReport))
     #
 
+CORE_ONLY_PIPELINE = r"""CellProfiler Pipeline: http://www.cellprofiler.org
+Version:3
+DateRevision:300
+GitHash:
+ModuleCount:5
+HasImagePlaneDetails:False
 
-GOOD_PIPELINE = r"""CellProfiler Pipeline: http://www.cellprofiler.org
+Images:[module_num:1|svn_version:\'Unknown\'|variable_revision_number:2|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True|wants_pause:False]
+    :
+    Filter images?:No filtering
+    Select the rule criteria:or (file does contain "")
+
+Metadata:[module_num:2|svn_version:\'Unknown\'|variable_revision_number:4|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True|wants_pause:False]
+    Extract metadata?:No
+    Metadata data type:Text
+    Metadata types:{}
+    Extraction method count:1
+    Metadata extraction method:Extract from image file headers
+    Metadata source:File name
+    Regular expression:^(?P<Plate>.*)_(?P<Well>[A-P][0-9]{2})_s(?P<Site>[0-9])_w(?P<ChannelNumber>[0-9])
+    Regular expression:(?P<Date>[0-9]{4}_[0-9]{2}_[0-9]{2})$
+    Extract metadata from:All images
+    Select the filtering criteria:or (file does contain "")
+    Metadata file location:
+    Match file and image metadata:\x5B\x5D
+    Use case insensitive matching?:No
+
+NamesAndTypes:[module_num:3|svn_version:\'Unknown\'|variable_revision_number:7|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True|wants_pause:False]
+    Assign a name to:All images
+    Select the image type:Grayscale image
+    Name to assign these images:DNA
+    Match metadata:[]
+    Image set matching method:Order
+    Set intensity range from:Manual
+    Assignments count:1
+    Single images count:0
+    Maximum intensity:255.0
+    Volumetric:No
+    x:1.0
+    y:1.0
+    z:1.0
+    Select the rule criteria:or (file does contain "")
+    Name to assign these images:DNA
+    Name to assign these objects:Cell
+    Select the image type:Grayscale image
+    Set intensity range from:Image metadata
+    Retain outlines of loaded objects?:No
+    Name the outline image:LoadedObjects
+    Maximum intensity:255.0
+
+Groups:[module_num:4|svn_version:\'Unknown\'|variable_revision_number:2|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True|wants_pause:False]
+    Do you want to group your images?:No
+    grouping metadata count:1
+    Metadata category:None
+
+FlipAndRotate:[module_num:5|svn_version:\'Unknown\'|variable_revision_number:2|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True|wants_pause:False]
+    Select the input image:DNA
+    Name the output image:DNACopy
+    Select method to flip image:Do not flip
+    Select method to rotate image:Do not rotate
+    Crop away the rotated edges?:Yes
+    Calculate rotation:Individually
+    Enter coordinates of the top or left pixel:0,0
+    Enter the coordinates of the bottom or right pixel:0,100
+    Select how the specified points should be aligned:horizontally
+    Enter angle of rotation:0
+
+"""
+
+FULL_PIPELINE = r"""CellProfiler Pipeline: http://www.cellprofiler.org
 Version:3
 DateRevision:300
 GitHash:
@@ -1114,6 +1190,10 @@ MeasureObjectSizeShape:[module_num:7|svn_version:\'Unknown\'|variable_revision_n
     Select objects to measure:Nuclei
     Calculate the Zernike features?:Yes
 """
+
+_cp_installed = find_spec("cellprofiler") != None
+GOOD_PIPELINE = FULL_PIPELINE if _cp_installed else CORE_ONLY_PIPELINE
+NUM_MODULES = 7 if _cp_installed else 5
 
 """This pipeline should raise an exception when NamesAndTypes is run"""
 BAD_PIPELINE = GOOD_PIPELINE.replace("Image name:DNA", "Image name:RNA")
