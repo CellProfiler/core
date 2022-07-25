@@ -9,6 +9,7 @@ jobs:
         python-version: [ 3.8, 3.9 ]
       fail-fast: false
     runs-on: ${{ matrix.os }}
+    if: ! github.event.pull_request.draft
     env:
       CP_MYSQL_TEST_HOST: "127.0.0.1"
       CP_MYSQL_TEST_DB: "cellprofiler_test"
@@ -51,14 +52,14 @@ jobs:
           pip install pyinstaller
           pip install --upgrade pip setuptools wheel
           pip install numpy>=1.20.1
-          git clone https://github.com/CellProfiler/CellProfiler.git ~/cellprofiler
+          # git clone https://github.com/CellProfiler/CellProfiler.git ~/cellprofiler
           pip install -e .[test]
-          pip install -e ~/cellprofiler
+          # pip install -e ~/cellprofiler
       - name: Test
         run: pytest -k 'not test_load_objects and not test_load_single_object'
 on:
   pull_request:
-    types: [opened, reopened, ready_for_review, review_requested]
+    types: [opened, reopened, synchronize, ready_for_review, review_requested]
   push:
     branches:
       - 'master'
