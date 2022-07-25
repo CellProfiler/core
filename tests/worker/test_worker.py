@@ -41,14 +41,17 @@ class TestAnalysisWorker(unittest.TestCase):
         #
         try:
             from cellprofiler.modules.flipandrotate import FlipAndRotate
+            from cellprofiler_core.modules.align import Align
         except:
             from .flipandrotate import FlipAndRotate
             cellprofiler_core.utilities.core.modules.add_module_for_tst(FlipAndRotate)
+            from cellprofiler_core.modules.align import Align
 
         def bogus_display_post_group(self, workspace, figure):
             pass
 
         FlipAndRotate.display_post_group = bogus_display_post_group
+        Align.display_post_group = bogus_display_post_group
 
     @classmethod
     def tearDownClass(cls):
@@ -608,12 +611,36 @@ class TestAnalysisWorker(unittest.TestCase):
         self.assertIsInstance(req, anarequest.Display)
         self.assertEqual(req.image_set_number, 1)
         d = req.display_data_dict
-        # Possibly, this will break if someone edits FlipAndRotate. Sorry.
-        testkeys = ["vmax", "output_image_pixel_data", "image_pixel_data", "vmin"]
+        if _cp_installed:
+            # Possibly, this will break if someone edits FlipAndRotate. Sorry.
+            testkeys = ["vmax", "output_image_pixel_data", "image_pixel_data", "vmin"]
+        else:
+            testkeys = ["image_info"]
         self.assertCountEqual(testkeys, list(d.keys()))
         for item in testkeys:
             self.assertIn(item, list(d.keys()))
-        self.assertIsInstance(d["output_image_pixel_data"], numpy.ndarray)
+        if _cp_installed:
+            self.assertIsInstance(d["output_image_pixel_data"], numpy.ndarray)
+        else:
+            self.assertEqual(len(d["image_info"]), 2)
+            
+            self.assertEqual(len(d["image_info"][0]), 7)
+            self.assertEqual(d["image_info"][0][0], "DNA")
+            self.assertIsInstance(d["image_info"][0][1], numpy.ndarray)
+            self.assertEqual(d["image_info"][0][2], "AlignedRed")
+            self.assertIsInstance(d["image_info"][0][3], numpy.ndarray)
+            self.assertEqual(d["image_info"][0][4], 0)
+            self.assertEqual(d["image_info"][0][5], 0)
+            self.assertEqual(d["image_info"][0][6], [640,640])
+
+            self.assertEqual(len(d["image_info"][1]), 7)
+            self.assertEqual(d["image_info"][1][0], "DNA")
+            self.assertIsInstance(d["image_info"][1][1], numpy.ndarray)
+            self.assertEqual(d["image_info"][1][2], "AlignedGreen")
+            self.assertIsInstance(d["image_info"][1][3], numpy.ndarray)
+            self.assertEqual(d["image_info"][1][4], 0)
+            self.assertEqual(d["image_info"][1][5], 0)
+            self.assertEqual(d["image_info"][1][6], [640,640])
         req.reply(anareply.Ack())
         #
         # The worker sends ImageSetSuccessWithDictionary.
@@ -1017,33 +1044,35 @@ class TestAnalysisWorker(unittest.TestCase):
     #
 
 CORE_ONLY_PIPELINE = r"""CellProfiler Pipeline: http://www.cellprofiler.org
-Version:3
-DateRevision:300
+Version:5
+DateRevision:421
 GitHash:
 ModuleCount:5
 HasImagePlaneDetails:False
 
-Images:[module_num:1|svn_version:\'Unknown\'|variable_revision_number:2|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True|wants_pause:False]
+Images:[module_num:1|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     :
     Filter images?:No filtering
     Select the rule criteria:or (file does contain "")
 
-Metadata:[module_num:2|svn_version:\'Unknown\'|variable_revision_number:4|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True|wants_pause:False]
+Metadata:[module_num:2|svn_version:'Unknown'|variable_revision_number:6|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Extract metadata?:No
     Metadata data type:Text
     Metadata types:{}
     Extraction method count:1
     Metadata extraction method:Extract from image file headers
     Metadata source:File name
-    Regular expression:^(?P<Plate>.*)_(?P<Well>[A-P][0-9]{2})_s(?P<Site>[0-9])_w(?P<ChannelNumber>[0-9])
-    Regular expression:(?P<Date>[0-9]{4}_[0-9]{2}_[0-9]{2})$
+    Regular expression to extract from file name:^(?P<Plate>.*)_(?P<Well>[A-P][0-9]{2})_s(?P<Site>[0-9])_w(?P<ChannelNumber>[0-9])
+    Regular expression to extract from folder name:(?P<Date>[0-9]{4}_[0-9]{2}_[0-9]{2})$
     Extract metadata from:All images
     Select the filtering criteria:or (file does contain "")
-    Metadata file location:
-    Match file and image metadata:\x5B\x5D
+    Metadata file location:Elsewhere...|
+    Match file and image metadata:[]
     Use case insensitive matching?:No
+    Metadata file name:
+    Does cached metadata exist?:No
 
-NamesAndTypes:[module_num:3|svn_version:\'Unknown\'|variable_revision_number:7|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True|wants_pause:False]
+NamesAndTypes:[module_num:3|svn_version:'Unknown'|variable_revision_number:8|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Assign a name to:All images
     Select the image type:Grayscale image
     Name to assign these images:DNA
@@ -1053,35 +1082,30 @@ NamesAndTypes:[module_num:3|svn_version:\'Unknown\'|variable_revision_number:7|s
     Assignments count:1
     Single images count:0
     Maximum intensity:255.0
-    Volumetric:No
-    x:1.0
-    y:1.0
-    z:1.0
+    Process as 3D?:No
+    Relative pixel spacing in X:1.0
+    Relative pixel spacing in Y:1.0
+    Relative pixel spacing in Z:1.0
     Select the rule criteria:or (file does contain "")
     Name to assign these images:DNA
     Name to assign these objects:Cell
     Select the image type:Grayscale image
     Set intensity range from:Image metadata
-    Retain outlines of loaded objects?:No
-    Name the outline image:LoadedObjects
     Maximum intensity:255.0
 
-Groups:[module_num:4|svn_version:\'Unknown\'|variable_revision_number:2|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True|wants_pause:False]
+Groups:[module_num:4|svn_version:'Unknown'|variable_revision_number:2|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
     Do you want to group your images?:No
     grouping metadata count:1
     Metadata category:None
 
-FlipAndRotate:[module_num:5|svn_version:\'Unknown\'|variable_revision_number:2|show_window:False|notes:\x5B\x5D|batch_state:array(\x5B\x5D, dtype=uint8)|enabled:True|wants_pause:False]
-    Select the input image:DNA
-    Name the output image:DNACopy
-    Select method to flip image:Do not flip
-    Select method to rotate image:Do not rotate
-    Crop away the rotated edges?:Yes
-    Calculate rotation:Individually
-    Enter coordinates of the top or left pixel:0,0
-    Enter the coordinates of the bottom or right pixel:0,100
-    Select how the specified points should be aligned:horizontally
-    Enter angle of rotation:0
+Align:[module_num:5|svn_version:'Unknown'|variable_revision_number:3|show_window:False|notes:[]|batch_state:array([], dtype=uint8)|enabled:True|wants_pause:False]
+    Select the alignment method:Mutual Information
+    Crop mode:Crop to aligned region
+    Select the first input image:DNA
+    Name the first output image:AlignedRed
+    Select the second input image:DNA
+    Name the second output image:AlignedGreen
+
 
 """
 
@@ -1200,8 +1224,8 @@ BAD_PIPELINE = GOOD_PIPELINE.replace("Image name:DNA", "Image name:RNA")
 
 """This pipeline should issue a request.Display when FlipAndRotate is run"""
 DISPLAY_PIPELINE = GOOD_PIPELINE.replace(
-    r"[module_num:5|svn_version:\'Unknown\'|variable_revision_number:2|show_window:False",
-    r"[module_num:5|svn_version:\'Unknown\'|variable_revision_number:2|show_window:True",
+    f"[module_num:5|svn_version:\'Unknown\'|variable_revision_number:{2 if _cp_installed else 3}|show_window:False",
+    f"[module_num:5|svn_version:\'Unknown\'|variable_revision_number:{2 if _cp_installed else 3}|show_window:True",
 )
 
 
