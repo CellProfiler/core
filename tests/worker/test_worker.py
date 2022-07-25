@@ -39,19 +39,15 @@ class TestAnalysisWorker(unittest.TestCase):
         # Install a bogus display_post_group method in FlipAndRotate
         # to elicit a post-group interaction request
         #
-        try:
-            from cellprofiler.modules.flipandrotate import FlipAndRotate
-            from cellprofiler_core.modules.align import Align
-        except:
-            from .flipandrotate import FlipAndRotate
-            cellprofiler_core.utilities.core.modules.add_module_for_tst(FlipAndRotate)
-            from cellprofiler_core.modules.align import Align
-
         def bogus_display_post_group(self, workspace, figure):
             pass
 
-        FlipAndRotate.display_post_group = bogus_display_post_group
-        Align.display_post_group = bogus_display_post_group
+        try:
+            from cellprofiler.modules.flipandrotate import FlipAndRotate
+            FlipAndRotate.display_post_group = bogus_display_post_group
+        except:
+            from cellprofiler_core.modules.align import Align
+            Align.display_post_group = bogus_display_post_group
 
     @classmethod
     def tearDownClass(cls):
