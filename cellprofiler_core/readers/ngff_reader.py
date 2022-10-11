@@ -99,7 +99,7 @@ class NGFFReader(Reader):
                   return a tuple of image and max intensity
         :param channel_names: provide the channel names for the OME metadata
         """
-        logging.critical(f"Reading {c=}, {z=}, {t=}, {series=}, {index=}, {xywh=}")
+        logging.debug(f"Reading {c=}, {z=}, {t=}, {series=}, {index=}, {xywh=}")
         c2 = None if c is None else c + 1
         z2 = None if z is None else z + 1
         t2 = None if t is None else t + 1
