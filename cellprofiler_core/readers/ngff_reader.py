@@ -29,8 +29,6 @@ class NGFFReader(Reader):
     # Reader cache maps a path to a tuple of (zarr_root_group, series_map).
     ZARR_READER_CACHE = {}
 
-    print("Loading NGFF reader")
-
     def __init__(self, image_file):
         self.variable_revision_number = 1
         super().__init__(image_file)
