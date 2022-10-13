@@ -6,8 +6,6 @@ import imageio
 from cellprofiler_core.readers.imageio_reader import ImageIOReader
 from google.cloud import storage
 
-from ..reader import Reader
-
 SUPPORTED_EXTENSIONS = {'.tiff'}
 
 
@@ -16,7 +14,10 @@ class GcsReader(ImageIOReader):
   Leverages ImageIOReader image processing methods.
 
   Prerequisites:
-  User has authenticated with Google Cloud Storage Application Default Credential (ADC) by running command, `gcloud auth application-default login`,  or is running CellProfiler in an environment where this credential has already been configured for them such as app.terra.bio or CloudShell.
+  User has authenticated with Google Cloud Storage Application Default Credential (ADC) by running command,
+  `gcloud auth application-default login`,
+  or is running CellProfiler in an environment where this credential has already been configured for them
+  such as app.terra.bio or CloudShell.
   """
 
   reader_name = "GcsReader"
@@ -39,7 +40,7 @@ class GcsReader(ImageIOReader):
 
       The volume parameter specifies whether the reader will need to return a 3D array.
       ."""
-      if image_file.url.lower().startswith("gs:"):
+      if image_file.url.lower().startswith("gs:") and image_file.file_extension in SUPPORTED_EXTENSIONS:
         return 1
       return -1
 

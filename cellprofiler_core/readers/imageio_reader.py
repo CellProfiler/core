@@ -8,7 +8,7 @@ from ..reader import Reader
 
 import imageio
 
-SUPPORTED_EXTENSIONS = {'.png', '.bmp', '.jpeg', '.jpg', '.gif','.tiff'}
+SUPPORTED_EXTENSIONS = {'.png', '.bmp', '.jpeg', '.jpg', '.gif','.tiff', '.tif'}
 
 
 class ImageIOReader(Reader):
@@ -140,8 +140,11 @@ class ImageIOReader(Reader):
 
         The volume parameter specifies whether the reader will need to return a 3D array.
         ."""
-        if image_file.url.lower().startswith("omero:"):
+        file_url = image_file.url.lower()
+        if file_url.startswith("omero:"):
             return -1
+        if file_url.endswith("ome.tif") or file_url.endswith("ome.tiff"):
+            return 3  # bioformats reader returns 2
         if image_file.file_extension in SUPPORTED_EXTENSIONS:
             return 2
         return -1

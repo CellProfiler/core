@@ -138,7 +138,7 @@ class BioformatsReader(Reader):
         file_url = image_file.url.lower()
         if file_url.startswith("omero:"):
             return 1
-        if file_url.endswith(".ome.tif"):
+        if file_url.endswith(".ome.tif") or file_url.endswith(".ome.tiff"):
             return 2
         if not allow_open:
             if image_file.file_extension in BIOFORMATS_IMAGE_EXTENSIONS:

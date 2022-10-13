@@ -21,6 +21,10 @@ def add_reader(reader_name, check_svn, class_name=None):
         else:
             cp_reader = find_cp_reader(rdr)
         name = cp_reader.reader_name
+    except ModuleNotFoundError as e:
+        LOGGER.warning("Could not load google.cloud package (is it installed?)")
+        bad_readers.append((reader_name, e))
+        return
     except Exception as e:
         LOGGER.warning("Could not load %s", reader_name, exc_info=True)
         bad_readers.append((reader_name, e))
