@@ -1,14 +1,15 @@
 import collections
-
 import numpy
-
-from ..constants.image import MD_SIZE_S, MD_SIZE_C, MD_SIZE_Z, MD_SIZE_T, MD_SIZE_Y, MD_SIZE_X
-
-from ..reader import Reader
-
 import imageio
 
-SUPPORTED_EXTENSIONS = {'.png', '.bmp', '.jpeg', '.jpg', '.gif','.tiff', '.tif'}
+from ..constants.image import MD_SIZE_S, MD_SIZE_C, MD_SIZE_Z, MD_SIZE_T, MD_SIZE_Y, MD_SIZE_X
+from ..reader import Reader
+
+
+SUPPORTED_EXTENSIONS = {'.png', '.bmp', '.jpeg', '.jpg', '.gif'}
+# bioformats returns 2 for these, imageio reader returns 3
+SEMI_SUPPORTED_EXTENSIONS = {'.tiff', '.tif', '.ome.tif', '.ome.tiff'}
+
 
 
 class ImageIOReader(Reader):
@@ -140,11 +141,10 @@ class ImageIOReader(Reader):
 
         The volume parameter specifies whether the reader will need to return a 3D array.
         ."""
-        file_url = image_file.url.lower()
-        if file_url.startswith("omero:"):
+        if image_file.url.lower().startswith("omero:"):
             return -1
-        if file_url.endswith("ome.tif") or file_url.endswith("ome.tiff"):
-            return 3  # bioformats reader returns 2
+        if image_file.full_extension in SEMI_SUPPORTED_EXTENSIONS:
+            return 3
         if image_file.file_extension in SUPPORTED_EXTENSIONS:
             return 2
         return -1
