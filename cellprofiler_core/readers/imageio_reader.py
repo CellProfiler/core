@@ -172,9 +172,10 @@ class ImageIOReader(Reader):
         for i in range(series_count):
             data = reader.get_data(index=i)
             dims = data.shape
+            # expects dim ordering of: [H, W, C?, T?, Z?]
             meta_dict[MD_SIZE_Z].append(dims[4] if len(dims) > 4 else 1)
             meta_dict[MD_SIZE_T].append(dims[3] if len(dims) > 3 else 1)
             meta_dict[MD_SIZE_C].append(dims[2] if len(dims) > 2 else 1)
-            meta_dict[MD_SIZE_Y].append(dims[1])
-            meta_dict[MD_SIZE_X].append(dims[0])
+            meta_dict[MD_SIZE_X].append(dims[1])
+            meta_dict[MD_SIZE_Y].append(dims[0])
         return meta_dict
