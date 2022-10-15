@@ -446,7 +446,7 @@ class Objects:
         # I surely do not understand the sparse code.  Converting both
         # arrays to csc gives the best peformance... Why not p.csr and
         # c.csc?
-        return (parent_matrix.tocsc() * child_matrix.tocsc())
+        return parent_matrix.tocsc() * child_matrix.tocsc()
 
     def fn_of_label_and_index(self, func):
         """Call a function taking a label matrix with the segmented labels
