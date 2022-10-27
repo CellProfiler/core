@@ -87,6 +87,9 @@ def find_cp_reader(rdr):
 def get_image_reader_class(image_file, use_cached_name=True, volume=False):
     if get_force_bioformats():
         return ALL_READERS["Bio-Formats"]
+    if not AVAILABLE_READERS:
+        raise Exception("No image readers are enabled.\n"
+                        "Please check reader configuration in the File menu.")
     if use_cached_name and image_file.preferred_reader in AVAILABLE_READERS:
         reader_class = get_image_reader_by_name(image_file.preferred_reader)
         return reader_class
