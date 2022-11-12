@@ -34,6 +34,7 @@ setuptools.setup(
         "pyzmq~=22.3",
         "scikit-image>=0.16.2",
         "scipy>=1.4.1",
+        "google-cloud-storage>=2.6.0",
     ],
     license="BSD",
     name="cellprofiler-core",
