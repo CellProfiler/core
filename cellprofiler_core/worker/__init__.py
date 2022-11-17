@@ -21,6 +21,7 @@ the analysis worker runs three threads:
 import logging
 import os
 import sys
+import psutil
 
 import pkg_resources
 
@@ -157,12 +158,15 @@ if __name__ == "__main__":
     except:
         maxfd = 256
 
-    # this is a hacky solution to an annoying problem with vscode debugging
-    # we want to set breakpoints in the debugger
-    # but the debugger corresponds to one of the open file descriptors
-    # so closing it would cause the debugger to detach from the subprocess
+    proc = psutil.Process()
+
+    # This is a hacky solution to an annoying problem with vscode debugging:
+    # we want to set breakpoints in the debugger,
+    # but one of the file descriptors inhertited by the child
+    # corresponds to a TCP/IPv4 connection attached to the debugger,
+    # so closing it would cause the debugger to detach from the subprocess.
     # AFAICT the debugger fd is always 4, and is not associated with
-    # any device + inode combo (both 0)
+    # any device + inode combo (both 0, ie null), so
     # if we find that, skip closing fd 4, else close all
     try:
         stat = os.fstat(4)
