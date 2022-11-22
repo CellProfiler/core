@@ -19,9 +19,15 @@ LOGGER = logging.getLogger(__name__)
 
 
 class NGFFReader(Reader):
-    """ Derive from this abstract Reader class to create your own image reader in Python
+    """
+    A reader for OME-NGFF files with the .zarr extension. Supports both 'normal' and
+    'HCS' storage modes.
 
-    You need to implement the methods below in the derived class.
+    OME-NGFF files below spec version 0.4 which are stored on S3/object storage
+    should have the zarr.convenience.consolidate_metadata() function run on them
+    to provide optimal performance over a network.
+
+    Other non-OME .zarr format images may be readable, but are not strictly supported.
     """
 
     reader_name = "OME-NGFF"
