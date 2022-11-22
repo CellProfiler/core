@@ -4,6 +4,7 @@ builtin_readers = {
     "imageio_reader": "ImageIOReader",
     "ngff_reader": "NGFFReader",
     "bioformats_reader": "BioformatsReader",
+    "gcs_reader": "GcsReader",
 }
 all_readers = dict()
 bad_readers = []
