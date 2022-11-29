@@ -20,6 +20,7 @@ class ImageIOReader(Reader):
     reader_name = "ImageIO"
     variable_revision_number = 1
     supported_filetypes = SUPPORTED_EXTENSIONS.union(SEMI_SUPPORTED_EXTENSIONS)
+    supported_schemes = SUPPORTED_SCHEMES
 
     def __init__(self, image_file):
         self.variable_revision_number = 1

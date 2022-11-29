@@ -27,6 +27,7 @@ class BioformatsReader(Reader):
     reader_name = "Bio-Formats"
     variable_revision_number = 1
     supported_filetypes = BIOFORMATS_IMAGE_EXTENSIONS
+    supported_schemes = SUPPORTED_SCHEMES
 
     def __init__(self, image_file):
         self._reader = None

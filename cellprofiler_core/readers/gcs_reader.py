@@ -19,18 +19,23 @@ SUPPORTED_SCHEMES = {'gs'}
 
 class GcsReader(ImageIOReader):
     """
-    Reads images from bucket(s) in Google Cloud Storage via user's Application Default Credential (ADC).
-    Leverages ImageIOReader image processing methods.
+    Reads images from bucket(s) in Google Cloud Storage via user's Application
+    Default Credential (ADC).
+    
+    Once the file is downloaded from GCS, this reader leverages ImageIO Reader's
+    image loading methods.
 
     Prerequisites:
-    User has authenticated with Google Cloud Storage Application Default Credential (ADC) by running command,
-    `gcloud auth application-default login`,
-    or is running CellProfiler in an environment where this credential has already been configured for them
-    such as app.terra.bio or CloudShell.
+    User has authenticated with Google Cloud Storage Application Default Credential
+    (ADC) by running the command: "gcloud auth application-default login",
+    or is running CellProfiler in an environment where this credential has already
+    been configured for them such as app.terra.bio or CloudShell.
     """
 
-    reader_name = "GcsReader"
+    reader_name = "Google Cloud Storage"
     variable_revision_number = 1
+    supported_filetypes = SUPPORTED_EXTENSIONS.union(SUPPORTED_EXTENSIONS)
+    supported_schemes = SUPPORTED_SCHEMES
 
     @classmethod
     def supports_format(cls, image_file, allow_open=False, volume=False):
