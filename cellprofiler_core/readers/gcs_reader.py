@@ -63,7 +63,7 @@ class GcsReader(ImageIOReader):
         return 4
 
     def get_reader(self, volume=False):
-        image_resource = self.__download_blob(self.file._url)
+        image_resource = self.__download_blob(self.file.url)
         if self._reader is None or volume != self._volume:
             if volume:
                 self._reader = imageio.get_reader(image_resource, mode='v')
