@@ -1,4 +1,3 @@
-import os
 import io
 from urllib.parse import urlparse
 import logging
@@ -75,6 +74,10 @@ class GcsReader(ImageIOReader):
     @classmethod
     def supports_url(cls):
         return True
+
+    @staticmethod
+    def get_settings():
+        return []
 
     def __decode_gcs_url(self, url):
         p = urlparse(url)
