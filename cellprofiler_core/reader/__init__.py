@@ -122,6 +122,3 @@ def get_image_reader_by_name(reader_name):
         LOGGER.warning(f"Requested reader {reader_name} which is disabled by config."
                        f"CellProfiler will use this reader anyway.")
     return ALL_READERS[reader_name]
-
-
-fill_readers()
