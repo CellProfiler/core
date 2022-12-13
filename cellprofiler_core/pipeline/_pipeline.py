@@ -581,13 +581,10 @@ class Pipeline:
         # Fix for array dtypes which contain split separator
         attribute_string = attribute_string.replace("dtype='|S", "dtype='S")
         # 4674- sometimes notes have pipes
-        print(attribute_string)
         prenote,note,postnote = re.split("(?P<note>\|notes:\[.*?\])",attribute_string)
-        print(prenote,note,postnote)
         attribute_strings = prenote[1:].split("|")
         attribute_strings += [note[1:]]
         attribute_strings += postnote[1:-1].split("|") 
-        print(attribute_strings)
         variable_revision_number = None
         # make batch_state decodable from text pipelines
         # NOTE, MAGIC HERE: These variables are **necessary**, even though they
