@@ -32,7 +32,7 @@ setuptools.setup(
         "python-bioformats==4.0.6",
         "python-javabridge==4.0.3",
         "pyzmq~=22.3",
-        "scikit-image>=0.16.2",
+        "scikit-image==0.18.3",
         "scipy>=1.4.1",
     ],
     license="BSD",
