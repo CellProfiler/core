@@ -580,7 +580,15 @@ class Pipeline:
             raise ValueError("Invalid format for attributes: %s" % attribute_string)
         # Fix for array dtypes which contain split separator
         attribute_string = attribute_string.replace("dtype='|S", "dtype='S")
-        attribute_strings = attribute_string[1:-1].split("|")
+        if len(re.split("(?P<note>\|notes:\[.*?\]\|)",attribute_string)) ==3:
+            # 4674- sometimes notes have pipes
+            prenote,note,postnote = re.split("(?P<note>\|notes:\[.*?\]\|)",attribute_string)
+            attribute_strings = prenote[1:].split("|")
+            attribute_strings += [note[1:-1]]
+            attribute_strings += postnote[:-1].split("|") 
+        else:
+            #old or weird pipeline without notes
+            attribute_strings = attribute_string[1:-1].split("|")
         variable_revision_number = None
         # make batch_state decodable from text pipelines
         # NOTE, MAGIC HERE: These variables are **necessary**, even though they
