@@ -4,7 +4,6 @@ import logging
 from cellprofiler_core.constants.measurement import RESERVED_METADATA_KEYS, \
     C_MONOCHROME, C_RGB, C_TILE, C_URL, \
     C_SERIES, C_CHANNEL, C_Z, C_T, C_INDEX, C_SERIES_NAME
-from cellprofiler_core.constants.modules.metadata import COL_INDEX
 from cellprofiler_core.pipeline import ImageFile
 
 logger = logging.getLogger(__name__)
@@ -112,7 +111,7 @@ class ImagePlane:
 
     @property
     def index(self):
-        return self.get_metadata(C_INDEX) or self.get_metadata(COL_INDEX)
+        return self.get_metadata(C_INDEX)
 
     @property
     def channel(self):
