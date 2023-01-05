@@ -53,7 +53,6 @@ jobs:
           pip install --upgrade pip setuptools wheel
           pip install numpy>=1.20.1
           # git clone https://github.com/CellProfiler/CellProfiler.git ~/cellprofiler
-          pip install --no-binary centrosome centrosome
           pip install -e .[test]
           # pip install -e ~/cellprofiler
       - name: Test
