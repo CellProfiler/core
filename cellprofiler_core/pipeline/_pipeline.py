@@ -702,7 +702,7 @@ class Pipeline:
         headers = {
                       'Accept': 'text/x-bibliography; style=apa',
                     }
-        for module in self.modules(exclude_disabled=True):
+        for module in self.modules(exclude_disabled=False):
             if module.enabled:
                 fmt = "[%4.d] [%s]"
             else:
