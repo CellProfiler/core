@@ -81,7 +81,7 @@ class Runner:
         self.initial_measurements_buf = initial_measurements_buf
 
         self.analysis_id = analysis_id
-        self.pipeline = pipeline.copy()
+        self.pipeline = pipeline.copy(preserve_module_state=True)
         self.event_listener = event_listener
 
         self.interface_work_cv = threading.Condition()
