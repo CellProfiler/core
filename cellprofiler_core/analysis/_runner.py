@@ -386,6 +386,9 @@ class Runner:
                         self.shared_dicts = finished_req.shared_dicts
                         waiting_for_first_imageset = False
                         assert len(self.shared_dicts) == len(self.pipeline.modules())
+                        for worker_dict, module in zip(self.shared_dicts, self.pipeline.modules()):
+                            # Apply those imported states to the master pipeline
+                            module.get_dictionary().update(worker_dict)
                         # if we had jobs waiting for the first image set to finish,
                         # queue them now that the shared state is available.
                         for job in job_groups:
