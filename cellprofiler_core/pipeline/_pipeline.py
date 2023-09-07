@@ -712,7 +712,10 @@ class Pipeline:
                 fmt = "[%4.d] [%s] (disabled)"
             doi_link_list=module.doi
             if len(doi_link_list)>0:
-                citation_list = [f"{doi_text} {requests.get(doi_link, headers=headers).text}" for doi_text, doi_link in doi_link_list.items()]
+                citation_list = [
+                    f"{doi_text} {requests.get(doi_link, headers=headers).content.decode('utf-8')}"
+                    for doi_text, doi_link in doi_link_list.items()
+                ]
                 
                 lines.append(fmt % (module.module_num, module.module_name))
                 lines.append("\n".join(citation_list))

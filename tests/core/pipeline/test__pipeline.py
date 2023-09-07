@@ -53,7 +53,7 @@ class TestPipeline:
     def test_save_pipeline_notes(self):
         pass
 
-    def test_save_pipeline_citations(self):
+    def test_save_pipeline_ciations(self):
         pass
 
     def test_write_pipeline_measurement(self):
