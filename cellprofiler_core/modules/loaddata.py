@@ -1060,6 +1060,33 @@ safe to press it.""",
             frame = measurements["Image", frame_feature]
         else:
             frame = None
+        if url.endswith('.zarr'):
+            # Zarrs need czt indexing rather than just index.
+            c, z, t = None, None, None
+
+            if measurements.has_feature("Image", f"Channel_{name}"):
+                c = measurements["Image", f"Channel_{name}"]
+            elif measurements.has_feature("Image", "Metadata_C"):
+                c = measurements["Image", "Metadata_C"]
+            if measurements.has_feature("Image", f"Z_{name}"):
+                z = measurements["Image", f"Z_{name}"]
+            elif measurements.has_feature("Image", "Metadata_Z"):
+                z = measurements["Image", "Metadata_Z"]
+            if measurements.has_feature("Image", f"T_{name}"):
+                t = measurements["Image", f"T_{name}"]
+            elif measurements.has_feature("Image", "Metadata_T"):
+                t = measurements["Image", "Metadata_T"]
+            return FileImage(
+                name,
+                path,
+                filename,
+                rescale=self.rescale.value and is_image_name,
+                series=series,
+                index=frame,
+                z=z,
+                channel=c,
+                t=t,
+            )
         return FileImage(
             name,
             path,
