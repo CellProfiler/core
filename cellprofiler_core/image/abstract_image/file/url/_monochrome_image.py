@@ -16,8 +16,6 @@ class MonochromeImage(URLImage):
         rescale=True,
         volume=False,
         spacing=None,
-        z=None,
-        t=None,
     ):
         URLImage.__init__(
             self,
@@ -29,8 +27,6 @@ class MonochromeImage(URLImage):
             channel=channel,
             volume=volume,
             spacing=spacing,
-            z=z,
-            t=t,
         )
 
     def provide_image(self, image_set):

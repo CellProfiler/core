@@ -1981,20 +1981,7 @@ requests an object selection.
                         javabridge.call(stack, "get", "([I)Ljava/lang/Object;", coords)
                     )
                 )
-        # CZT needed for zarr reading. Provision of index parameter will make bioformats readers ignore these.
-        if workspace.measurements.has_feature("Image", "Metadata_Z"):
-            z = workspace.measurements.get_measurement("Image", "Metadata_Z")
-            if z is not None:
-                z = int(z)
-        else:
-            z = None
-        if workspace.measurements.has_feature("Image", "Metadata_T"):
-            t = workspace.measurements.get_measurement("Image", "Metadata_T")
-            if t is not None:
-                t = int(t)
 
-        else:
-            t = None
         if len(ipds) == 1:
             interleaved = javabridge.get_static_field(
                 "org/cellprofiler/imageset/ImagePlane", "INTERLEAVED", "I"
@@ -2007,14 +1994,6 @@ requests an object selection.
             series = ipd.series
             index = ipd.index
             channel = ipd.channel
-            if url.lower().endswith('.zarr') and workspace.measurements.has_feature("Image", "Metadata_C"):
-                # Override channel index with real value if using zarrs
-                channelM = workspace.measurements.get_measurement("Image", "Metadata_C")
-                if channelM is not None:
-                    channel = int(channelM)
-                else:
-                    # Todo: Solve channel ID if mixed channel pipeline
-                    channel = index
             if channel == monochrome:
                 channel = None
             elif channel == interleaved:
@@ -2022,7 +2001,7 @@ requests an object selection.
                 if index == 0:
                     index = None
             self.add_simple_image(
-                workspace, name, load_choice, rescale, url, series, index, channel, z=z, t=t,
+                workspace, name, load_choice, rescale, url, series, index, channel
             )
         elif all([ipd.url == ipds[0].url for ipd in ipds[1:]]):
             # Can load a simple image with a vector of series/index/channel
@@ -2031,7 +2010,7 @@ requests an object selection.
             index = [ipd.index for ipd in ipds]
             channel = [None if ipd.channel < 0 else ipd.channel for ipd in ipds]
             self.add_simple_image(
-                workspace, name, load_choice, rescale, url, series, index, channel, z=z, t=t,
+                workspace, name, load_choice, rescale, url, series, index, channel
             )
         else:
             # Different URLs - someone is a clever sadist
@@ -2044,7 +2023,7 @@ requests an object selection.
             )
 
     def add_simple_image(
-        self, workspace, name, load_choice, rescale, url, series, index, channel, z=None, t=None,
+        self, workspace, name, load_choice, rescale, url, series, index, channel
     ):
         m = workspace.measurements
 
@@ -2056,7 +2035,7 @@ requests an object selection.
 
         if load_choice == LOAD_AS_COLOR_IMAGE:
             provider = ColorImage(
-                name, url, series, index, rescale, volume=volume, spacing=spacing, z=z, t=t,
+                name, url, series, index, rescale, volume=volume, spacing=spacing
             )
         elif load_choice == LOAD_AS_GRAYSCALE_IMAGE:
             provider = MonochromeImage(
@@ -2068,16 +2047,14 @@ requests an object selection.
                 rescale,
                 volume=volume,
                 spacing=spacing,
-                z=z,
-                t=t,
             )
         elif load_choice == LOAD_AS_ILLUMINATION_FUNCTION:
             provider = MonochromeImage(
-                name, url, series, index, channel, False, volume=volume, spacing=spacing, z=z, t=t,
+                name, url, series, index, channel, False, volume=volume, spacing=spacing
             )
         elif load_choice == LOAD_AS_MASK:
             provider = MaskImage(
-                name, url, series, index, channel, volume=volume, spacing=spacing, z=z, t=t,
+                name, url, series, index, channel, volume=volume, spacing=spacing
             )
 
         workspace.image_set.providers.append(provider)

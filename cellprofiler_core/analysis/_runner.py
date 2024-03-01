@@ -672,8 +672,7 @@ class Runner:
             # closed, the subprocess exits.
             if hasattr(sys, "frozen"):
                 if sys.platform == "darwin":
-                    executable = os.path.join(os.path.dirname(sys.executable),
-                                              "cellprofilerapp")
+                    executable = os.path.join(os.path.dirname(sys.executable), "cp")
                     args = [executable] + aw_args
                 elif sys.platform.startswith("linux"):
                     aw_path = os.path.join(os.path.dirname(__file__), "__init__.py")

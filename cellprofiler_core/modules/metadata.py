@@ -1133,7 +1133,6 @@ not being applied, your choice on this setting may be the culprit.
         from bioformats.formatreader import get_omexml_metadata
         from typing import Optional, Any, Callable
         from dataclasses import dataclass
-        from cellprofiler_core.utilities.zarr import get_zarr_metadata
 
         @dataclass
         class ui_context:
@@ -1174,7 +1173,6 @@ not being applied, your choice on this setting may be the culprit.
                 for i, url in enumerate(urls):
                     try:
                         if not pbar_context.update_callback(pbar_context.dlg, i, url):
-
                             break
                         if group.filter_choice == F_FILTERED_IMAGES:
                             match = group.filter.evaluate(
@@ -1188,10 +1186,7 @@ not being applied, your choice on this setting may be the culprit.
                                 continue
                         metadata = filelist.get_metadata(url)
                         if metadata is None:
-                            if url.lower().endswith('.zarr'):
-                                metadata = get_zarr_metadata(url=url)
-                            else:
-                                metadata = get_omexml_metadata(url=url)
+                            metadata = get_omexml_metadata(url=url)
                             filelist.add_metadata(url, metadata)
                     except Exception as e:
                         import logging
@@ -1204,6 +1199,7 @@ not being applied, your choice on this setting may be the culprit.
                         pbar_context.err_callback(errmsg)
 
         update_all_urls()
+
         group.metadata_autoextracted.value = True
 
     def on_activated(self, workspace):

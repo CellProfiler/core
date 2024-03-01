@@ -82,12 +82,7 @@ def get_config():
     try:
         config = wx.Config.Get(False)
     except wx.PyNoAppError:
-        try:
-            app = wx.App(0)
-        except SystemExit:
-            # We're probably building on GitHub Actions
-            print("Python version doesn't support GUI, no app available.")
-            return __headless_config
+        app = wx.App(0)
         config = wx.Config.Get(False)
     if not config:
         wx.Config.Set(
