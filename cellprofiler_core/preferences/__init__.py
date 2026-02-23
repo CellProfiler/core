@@ -79,12 +79,20 @@ def get_config():
         return __headless_config
     import wx
 
-    try:
-        config = wx.Config.Get(False)
-    except wx.PyNoAppError:
+    if wx.App.Get() is None:
         app = wx.App(0)
-        config = wx.Config.Get(False)
+
+        if sys.platform.startswith("linux"):
+            _std_pths = wx.StandardPaths.Get()
+            if _std_pths.GetFileLayout() != wx.StandardPaths.FileLayout_XDG:
+                logging.debug("Setting file layout to XDG")
+                # use XDG standard file layout
+                _std_pths.SetFileLayout(wx.StandardPaths.FileLayout_XDG)
+
+    config = wx.Config.Get(False)
+
     if not config:
+        logging.debug(f"Init Config - Location is {wx.StandardPaths.Get().GetUserConfigDir()}/CellProfilerLocal.cfg")
         wx.Config.Set(
             wx.Config(
                 "CellProfiler",
