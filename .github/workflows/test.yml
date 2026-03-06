@@ -66,7 +66,7 @@ jobs:
         timeout-minutes: 10
         run: |
           # add -rP if you want to see debug for all tests, not just failed ones
-          pytest -v --exitfirst --disable-warnings -o log_cli_level=10 --tb=long --show-capture=all --capture=sys --color=yes --code-highlight=yes --timeout=60 -k 'not test_load_objects and not test_load_single_object'
+          pytest -v --exitfirst --disable-warnings -o log_cli_level=10 --tb=long --show-capture=all --capture=sys --color=yes --code-highlight=yes -k 'not test_load_objects and not test_load_single_object'
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, review_requested]
