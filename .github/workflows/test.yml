@@ -59,8 +59,8 @@ jobs:
         run:
           |
           pip install pyinstaller
-          pip install --upgrade pip setuptools wheel
-          pip install "numpy>=1.20.1,<2" "Cython<3"
+          pip install --upgrade pip "setuptools==64" "wheel>=0.45.0,<0.46"
+          pip install "numpy>=1.20.1,<1.25.0" "Cython<3"
           pip install -e .[test]
       - name: Run Tests
         timeout-minutes: 10
