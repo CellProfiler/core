@@ -1458,11 +1458,16 @@ class Measurements:
         if not self.has_feature(EXPERIMENT, M_PATH_MAPPINGS,):
             return url
         d = json.loads(self.get_experiment_measurement(M_PATH_MAPPINGS))
-        full_name = os_url2pathname(url[5:])
+        if url[:8] =="file:///": #windows encoded paths
+            full_name = os_url2pathname(url[8:])
+        else:
+            full_name = os_url2pathname(url[5:])
         full_name_c = full_name if d[K_CASE_SENSITIVE] else full_name.lower()
         if d[K_LOCAL_SEPARATOR] != os.path.sep:
             full_name = full_name.replace(d[K_LOCAL_SEPARATOR], os.path.sep)
         for local_directory, remote_directory in d[K_PATH_MAPPINGS]:
+            if d[K_LOCAL_SEPARATOR] != os.path.sep:
+                local_directory = local_directory.replace(d[K_LOCAL_SEPARATOR], os.path.sep)
             if d[K_CASE_SENSITIVE]:
                 if full_name_c.startswith(local_directory):
                     full_name = remote_directory + full_name[len(local_directory) :]
