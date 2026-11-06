@@ -1,9 +1,10 @@
 import os
 import re
 import shutil
-import sys
 import tempfile
 import urllib.request
+from pathlib import Path
+from urllib.parse import quote
 
 import boto3
 import javabridge
@@ -207,32 +208,14 @@ def make_dictionary_key(key):
 
 
 def image_resource(filename):
+    if os.environ.get("CELLPROFILER_BUILDING_DOCS") == "1":
+        return "/images/{}".format(quote(filename))
     try:
-        if os.path.join("CellProfiler", "docs") in os.path.abspath(os.curdir):
-            # We're probably trying to buld the manual
-            thepath = os.path.relpath(
-                os.path.abspath(
-                    pkg_resources.resource_filename(
-                        "cellprofiler", os.path.join("..", "images", filename)
-                    )
-                ),
-                os.path.abspath(os.curdir),
+        return Path(
+            pkg_resources.resource_filename(
+                "cellprofiler", os.path.join("data", "images", filename)
             )
-        else:
-            if hasattr(sys, "frozen"):
-                # Use relative paths if we're frozen.
-                thepath = os.path.relpath(
-                    pkg_resources.resource_filename(
-                        "cellprofiler", os.path.join("data", "images", filename)
-                    )
-                )
-            else:
-                thepath = os.path.abspath(
-                    pkg_resources.resource_filename(
-                        "cellprofiler", os.path.join("data", "images", filename)
-                    )
-                )
-        return thepath.replace("\\", "/")
+        ).resolve().as_uri()
     except ModuleNotFoundError:
         # CellProfiler is not installed so the assets are missing.
         # In theory an icon should never be called without the GUI anyway
