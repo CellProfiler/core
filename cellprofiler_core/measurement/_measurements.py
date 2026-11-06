@@ -1,10 +1,11 @@
 import json
 import logging
+import nturl2path
 import os
 import re
 import sys
+import urllib.parse
 import urllib.request
-from urllib.request import url2pathname as os_url2pathname
 import warnings
 
 import h5py
@@ -1458,18 +1459,27 @@ class Measurements:
         if not self.has_feature(EXPERIMENT, M_PATH_MAPPINGS,):
             return url
         d = json.loads(self.get_experiment_measurement(M_PATH_MAPPINGS))
-        full_name = os_url2pathname(url[5:])
-        full_name_c = full_name if d[K_CASE_SENSITIVE] else full_name.lower()
-        if d[K_LOCAL_SEPARATOR] != os.path.sep:
-            full_name = full_name.replace(d[K_LOCAL_SEPARATOR], os.path.sep)
+        parsed_url = urllib.parse.urlsplit(url)
+        url_path = parsed_url.path
+        if parsed_url.netloc and parsed_url.netloc.lower() != "localhost":
+            url_path = "//" + parsed_url.netloc + url_path
+        if d[K_URL2PATHNAME_PACKAGE_NAME] == "nturl2path":
+            full_name = nturl2path.url2pathname(url_path)
+        else:
+            full_name = urllib.parse.unquote(url_path)
+        full_name = full_name.replace(d[K_LOCAL_SEPARATOR], "/")
+        mapped = False
         for local_directory, remote_directory in d[K_PATH_MAPPINGS]:
-            if d[K_CASE_SENSITIVE]:
-                if full_name_c.startswith(local_directory):
-                    full_name = remote_directory + full_name[len(local_directory) :]
-            else:
-                if full_name_c.startswith(local_directory.lower()):
-                    full_name = remote_directory + full_name[len(local_directory) :]
-        url = "file:" + urllib.request.pathname2url(full_name)
+            local_directory = local_directory.replace(d[K_LOCAL_SEPARATOR], "/")
+            full_name_c = full_name if d[K_CASE_SENSITIVE] else full_name.lower()
+            local_directory_c = (
+                local_directory if d[K_CASE_SENSITIVE] else local_directory.lower()
+            )
+            if full_name_c.startswith(local_directory_c):
+                full_name = remote_directory + full_name[len(local_directory) :]
+                mapped = True
+        if mapped:
+            return "file:" + urllib.request.pathname2url(full_name)
         return url
 
     ###########################################################
