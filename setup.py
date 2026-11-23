@@ -39,6 +39,6 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=["tests"]),
     python_requires=">=3.8",
     url="https://github.com/CellProfiler/core",
-    version="4.2.8.1",
+    version="4.2.9",
     zip_safe=False,
 )
